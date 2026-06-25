@@ -1,0 +1,150 @@
+/* ════════════════════════════════════════════════════════
+   THÈME JAUNE-ORANGE DYNAMIQUE — Ma Banque (Tailwind CSS)
+   Design tokens dans tailwind.config.js — composants via @apply
+   ════════════════════════════════════════════════════════ */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Variables CSS pour les tokens shadcn (utilisés par PixelHero) ─── */
+:root {
+  --hue-background: 254 235 165;       /* jaune-orange clair, plus chaud  */
+  --hue-foreground: 69 26 3;            /* amber-950    */
+  --hue-primary: 234 88 12;             /* primaire-600 */
+  --hue-primary-foreground: 255 255 255;
+  --hue-muted-foreground: 180 83 9;     /* amber-700    */
+  --hue-card: 255 255 255;
+  --hue-card-foreground: 69 26 3;
+  --hue-border: 253 230 138;            /* primaire-200 */
+}
+[data-theme='sombre'] {
+  --hue-background: 28 20 16;           /* sombre.fond     */
+  --hue-foreground: 254 243 199;        /* primaire-100    */
+  --hue-primary: 251 191 36;            /* primaire-400    */
+  --hue-primary-foreground: 28 20 16;
+  --hue-muted-foreground: 252 211 77;   /* primaire-300    */
+  --hue-card: 41 32 23;                 /* sombre.surface  */
+  --hue-card-foreground: 254 243 199;
+  --hue-border: 87 64 31;               /* sombre.bordure  */
+}
+
+@layer base {
+  body {
+    @apply font-sans bg-primaire-50 text-amber-950 transition-colors duration-300;
+  }
+  [data-theme='sombre'] body {
+    @apply bg-sombre-fond text-primaire-100;
+  }
+  h1 { @apply text-2xl font-extrabold mb-1; }
+  h2 { @apply text-lg font-bold mb-3; }
+  label { @apply block font-semibold text-sm text-amber-700 dark:text-primaire-400 mt-2.5 mb-1; }
+  input, select {
+    @apply w-full px-3.5 py-2.5 rounded-xl border-2 border-primaire-200 bg-white text-amber-950
+           transition-colors focus:outline-none focus:border-primaire-500
+           dark:bg-sombre-surface dark:border-sombre-bordure dark:text-primaire-100;
+  }
+  table { @apply w-full border-collapse; }
+  th { @apply text-left px-2.5 py-2.5 text-amber-700 dark:text-primaire-400 text-xs uppercase tracking-wide; }
+  td { @apply px-2.5 py-3 border-t border-primaire-200 dark:border-sombre-bordure; }
+  tr:hover td { @apply bg-primaire-100 dark:bg-sombre-surface2; }
+}
+
+@layer components {
+  /* ─── Mise en page ─── */
+  .app { @apply flex min-h-screen flex-col md:flex-row; }
+  .sidebar {
+    @apply w-full md:w-60 md:min-h-screen p-4 bg-white border-b-2 md:border-b-0 md:border-r-2
+           border-primaire-200 flex flex-row md:flex-col flex-wrap gap-1.5 md:sticky md:top-0
+           dark:bg-sombre-surface dark:border-sombre-bordure;
+  }
+  .contenu { @apply flex-1 p-5 md:p-8 max-w-5xl; }
+  .logo {
+    @apply text-xl font-extrabold p-2.5 bg-degrade-anime bg-[length:300%_300%] animate-degrade
+           bg-clip-text text-transparent;
+  }
+  .nav-lien {
+    @apply flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl font-semibold no-underline
+           text-amber-700 transition-all duration-200 hover:bg-primaire-100 hover:translate-x-1
+           dark:text-primaire-400 dark:hover:bg-sombre-surface2;
+  }
+  .nav-lien.actif { @apply bg-degrade text-white shadow-ambre hover:translate-x-0; }
+
+  /* ─── Cartes ─── */
+  .carte {
+    @apply bg-white border border-primaire-200 rounded-2xl p-5 shadow-ambre animate-apparition
+           hover:border-primaire-500 transition-colors
+           dark:bg-sombre-surface dark:border-sombre-bordure;
+  }
+  .carte-compte {
+    @apply bg-degrade-anime bg-[length:300%_300%] animate-degrade text-white border-none
+           cursor-pointer transition-transform duration-200 hover:-translate-y-1 hover:scale-[1.01]
+           hover:shadow-ambre-lg;
+  }
+
+  /* ─── Boutons (focus visible = accessibilité WCAG) ─── */
+  .btn {
+    @apply bg-degrade text-white border-none px-5 py-2.5 rounded-xl font-bold text-sm
+           cursor-pointer transition-all duration-200 hover:brightness-110 hover:-translate-y-0.5
+           hover:shadow-ambre focus-visible:outline focus-visible:outline-2
+           focus-visible:outline-offset-2 focus-visible:outline-primaire-600
+           disabled:opacity-50 disabled:cursor-not-allowed disabled:translate-y-0;
+  }
+  .btn-secondaire {
+    @apply bg-primaire-100 text-amber-700 border border-primaire-200
+           dark:bg-sombre-surface2 dark:text-primaire-400 dark:border-sombre-bordure;
+  }
+  .btn-danger { @apply bg-red-600 bg-none; }
+
+  /* ─── Badges / alertes ─── */
+  .badge {
+    @apply inline-block px-2.5 py-0.5 rounded-full text-xs font-bold
+           bg-primaire-100 text-amber-700 dark:bg-sombre-surface2 dark:text-primaire-400;
+  }
+  .badge-credit { @apply bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400; }
+  .badge-debit { @apply bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400; }
+  .alerte { @apply px-4 py-3 rounded-xl my-3 font-semibold animate-apparition; }
+  .alerte-erreur { @apply bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400; }
+  .alerte-succes { @apply bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400; }
+
+  /* ─── OTP 6 chiffres ─── */
+  .otp-conteneur { @apply flex gap-2.5 justify-center my-5; }
+  .otp-case {
+    @apply w-12 h-14 md:w-[52px] md:h-[62px] text-center text-2xl font-extrabold
+           border-2 border-primaire-200 rounded-2xl bg-white text-amber-950
+           transition-all focus:border-primaire-500 focus:scale-105 focus:animate-pulsation
+           dark:bg-sombre-surface dark:border-sombre-bordure dark:text-primaire-100;
+  }
+
+  /* ─── Progression / graphique ─── */
+  .progression-fond { @apply bg-primaire-100 rounded-full h-3.5 overflow-hidden dark:bg-sombre-surface2; }
+  .progression-barre { @apply h-full bg-degrade rounded-full transition-[width] duration-1000 ease-out; }
+  .graphique { @apply flex items-end gap-3.5 h-44 pt-2.5; }
+  .graphique .barre { @apply flex-1 bg-degrade rounded-t-lg min-h-1 relative transition-[height] duration-700; }
+  .graphique .barre span { @apply absolute -top-5 left-1/2 -translate-x-1/2 text-[11px] font-bold whitespace-nowrap; }
+  .graphique .barre small { @apply absolute -bottom-5 left-1/2 -translate-x-1/2 text-[11px] text-amber-700 dark:text-primaire-400; }
+
+  /* ─── Onglets ─── */
+  .onglets { @apply flex gap-2 flex-wrap mb-4; }
+  .onglet {
+    @apply px-4 py-2 rounded-full border border-primaire-200 bg-white text-amber-700 font-bold
+           cursor-pointer transition-all duration-200 hover:border-primaire-500
+           dark:bg-sombre-surface dark:text-primaire-400 dark:border-sombre-bordure;
+  }
+  .onglet.actif { @apply bg-degrade text-white border-transparent; }
+
+  /* ─── Écran d'authentification ─── */
+  .ecran-auth {
+    @apply min-h-screen flex items-center justify-center p-5
+           bg-degrade-anime bg-[length:300%_300%] animate-degrade;
+  }
+  .boite-auth { @apply w-full max-w-md; }
+
+  /* ─── Divers ─── */
+  .entete-page { @apply flex justify-between items-center mb-5 flex-wrap gap-2.5; }
+  .sous-titre { @apply text-amber-700 dark:text-primaire-400 mb-5; }
+  .pastille-notif { @apply bg-red-600 text-white rounded-full text-[11px] px-1.5 py-px font-extrabold; }
+  .grille { @apply grid gap-4; }
+  .grille-2 { @apply grid-cols-1 sm:grid-cols-2; }
+  .grille-3 { @apply grid-cols-1 sm:grid-cols-2 lg:grid-cols-3; }
+  .anime { @apply animate-apparition; }
+}

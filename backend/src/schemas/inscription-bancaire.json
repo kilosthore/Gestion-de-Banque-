@@ -1,0 +1,134 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "InscriptionBancaire",
+  "description": "Données d'une inscription bancaire complète (wizard 6 étapes — US-25)",
+  "type": "object",
+  "required": ["informationsPersonnelles", "coordonnees", "informationsPro", "produit", "kyc", "consentements"],
+  "additionalProperties": false,
+  "properties": {
+    "informationsPersonnelles": {
+      "type": "object",
+      "required": ["civilite", "prenom", "nom", "dateNaissance", "nationalite", "lieuNaissance"],
+      "additionalProperties": false,
+      "properties": {
+        "civilite": { "type": "string", "enum": ["M.", "Mme", "Autre"] },
+        "prenom": { "type": "string", "minLength": 2, "maxLength": 50, "pattern": "^[A-Za-zÀ-ÿ' -]+$" },
+        "nom": { "type": "string", "minLength": 2, "maxLength": 50, "pattern": "^[A-Za-zÀ-ÿ' -]+$" },
+        "dateNaissance": { "type": "string", "format": "date" },
+        "nationalite": { "type": "string", "minLength": 2, "maxLength": 80 },
+        "lieuNaissance": { "type": "string", "minLength": 2, "maxLength": 120 }
+      }
+    },
+    "coordonnees": {
+      "type": "object",
+      "required": ["adresseRue", "adresseVille", "adresseCodePostal", "adressePays", "telephoneIndicatif", "telephoneNumero", "email", "motDePasse"],
+      "additionalProperties": false,
+      "properties": {
+        "adresseRue": { "type": "string", "minLength": 3, "maxLength": 200 },
+        "adresseVille": { "type": "string", "minLength": 2, "maxLength": 100 },
+        "adresseCodePostal": { "type": "string", "minLength": 3, "maxLength": 12 },
+        "adressePays": { "type": "string", "minLength": 2, "maxLength": 80 },
+        "telephoneIndicatif": { "type": "string", "pattern": "^\\+\\d{1,4}$" },
+        "telephoneNumero": { "type": "string", "pattern": "^[0-9 -]{6,20}$" },
+        "email": { "type": "string", "format": "email", "maxLength": 254 },
+        "motDePasse": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 128,
+          "pattern": "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$",
+          "description": "Au moins 8 caractères avec minuscule, majuscule et chiffre"
+        }
+      }
+    },
+    "informationsPro": {
+      "type": "object",
+      "required": ["statutPro", "revenuMensuelNet"],
+      "additionalProperties": false,
+      "properties": {
+        "statutPro": {
+          "type": "string",
+          "enum": ["salarie", "independant", "etudiant", "sansEmploi", "retraite"]
+        },
+        "nomEmployeur": { "type": "string", "maxLength": 150 },
+        "dateEmbauche": { "type": "string", "format": "date" },
+        "typeContrat": { "type": "string", "enum": ["CDI", "CDD", "Interim", "Stage", "Alternance"] },
+        "siret": { "type": "string", "pattern": "^[0-9]{14}$" },
+        "dateCreationEntreprise": { "type": "string", "format": "date" },
+        "revenuMensuelNet": { "type": "number", "minimum": 0, "maximum": 1000000 },
+        "chargesMensuelles": { "type": "number", "minimum": 0, "maximum": 1000000 }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "statutPro": { "const": "salarie" } } },
+          "then": { "required": ["nomEmployeur", "dateEmbauche", "typeContrat"] }
+        },
+        {
+          "if": { "properties": { "statutPro": { "const": "independant" } } },
+          "then": { "required": ["siret", "dateCreationEntreprise"] }
+        }
+      ]
+    },
+    "produit": {
+      "type": "object",
+      "required": ["typeCompte"],
+      "additionalProperties": false,
+      "properties": {
+        "typeCompte": { "type": "string", "enum": ["cheque", "epargne", "jeune"] },
+        "decouvertAutorise": { "type": "boolean" },
+        "plafondDecouvert": { "type": "number", "minimum": 0, "maximum": 2000 },
+        "demandeCarte": { "type": "boolean" },
+        "typeCarte": { "type": "string", "enum": ["debit", "credit"] }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "decouvertAutorise": { "const": true } } },
+          "then": { "required": ["plafondDecouvert"] }
+        },
+        {
+          "if": { "properties": { "demandeCarte": { "const": true } } },
+          "then": { "required": ["typeCarte"] }
+        }
+      ]
+    },
+    "kyc": {
+      "type": "object",
+      "required": ["personnePolitiquementExposee", "origineFonds", "residentFiscalUSA"],
+      "additionalProperties": false,
+      "properties": {
+        "personnePolitiquementExposee": { "type": "boolean" },
+        "doubleNationalite": { "type": "boolean" },
+        "deuxiemeNationalite": { "type": "string", "maxLength": 80 },
+        "nifEtranger": { "type": "string", "maxLength": 50 },
+        "origineFonds": {
+          "type": "string",
+          "enum": ["salaire", "heritage", "vente_bien", "epargne_personnelle", "donation", "autre"]
+        },
+        "residentFiscalUSA": { "type": "boolean" }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "doubleNationalite": { "const": true } } },
+          "then": { "required": ["deuxiemeNationalite"] }
+        }
+      ]
+    },
+    "documents": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "pieceIdentiteNom": { "type": "string", "maxLength": 255 },
+        "justificatifDomicileNom": { "type": "string", "maxLength": 255 }
+      }
+    },
+    "consentements": {
+      "type": "object",
+      "required": ["cgu", "confidentialite", "prelevementAutorisation"],
+      "additionalProperties": false,
+      "properties": {
+        "cgu": { "type": "boolean", "const": true },
+        "confidentialite": { "type": "boolean", "const": true },
+        "prelevementAutorisation": { "type": "boolean", "const": true }
+      }
+    }
+  }
+}

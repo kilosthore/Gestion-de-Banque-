@@ -1,0 +1,94 @@
+classDiagram
+    class Utilisateur {
+        <<abstract>>
+        -String id
+        -String nom
+        -String email
+        -String motDePasseHache
+        -Role role
+        +seConnecter()
+        +seDeconnecter()
+    }
+    class Client {
+        -String prenom
+        -Date dateCreation
+        +creerProfil()
+        +selectionnerProfil()
+        +consulterComptes()
+    }
+    class Administrateur {
+        +configurerParametres()
+        +reinitialiserProfil()
+    }
+    class Compte {
+        -String id
+        -TypeCompte type
+        -Decimal solde
+        -String devise
+        -Date dateOuverture
+        +crediter(m)
+        +debiter(m)
+        +verifierSolde()
+    }
+    class Transaction {
+        -String id
+        -TypeTransaction type
+        -Decimal montant
+        -Date date
+        -String description
+        -Statut statut
+        +executer()
+        +annuler()
+    }
+    class TransactionRecurrente {
+        -Frequence frequence
+        -Date prochaineEcheance
+        -Boolean active
+        +planifier()
+        +suspendre()
+    }
+    class Beneficiaire {
+        -String id
+        -String nom
+        -String coordonnees
+        +ajouter()
+        +modifier()
+    }
+    class Fournisseur {
+        -String id
+        -String nom
+        -String categorie
+        +ajouter()
+    }
+    class ObjectifEpargne {
+        -String id
+        -String nom
+        -Decimal montantCible
+        -Decimal montantEpargne
+        +progression() Decimal
+    }
+    class Parametres {
+        -Decimal seuilSoldeFaible
+        -String devise
+        +modifier()
+    }
+    class Notification {
+        -String id
+        -String message
+        -Date date
+        -Boolean lue
+        +envoyer()
+    }
+
+    Utilisateur <|-- Client
+    Utilisateur <|-- Administrateur
+    Transaction <|-- TransactionRecurrente
+    Client "1" *-- "0..*" Compte : possède
+    Client "1" *-- "0..*" Beneficiaire : gère
+    Client "1" *-- "0..*" ObjectifEpargne : définit
+    Compte "1" *-- "0..*" Transaction : contient
+    Transaction "0..*" --> "0..1" Beneficiaire : vers
+    Transaction "0..*" --> "0..1" Fournisseur : paie
+    Client "1" --> "0..*" Notification : reçoit
+    Administrateur "1" --> "1" Parametres : configure
+    Notification ..> Parametres : seuil
