@@ -1,6 +1,9 @@
 import { useState } from 'react';
+import { User, ShieldCheck, Pencil } from 'lucide-react';
 import { api } from '../api/client';
 import { useAuth } from '../context/AuthContext';
+import { IconeFlottante } from '../components/ui/icone-action';
+import { PopoverInfo } from '../components/ui/popover-info';
 
 /** US-01 / US-03 — Consulter et modifier mon profil */
 export default function Profil() {
@@ -20,7 +23,10 @@ export default function Profil() {
 
   return (
     <div>
-      <h1>Mon profil 👤</h1>
+      <h1 className="flex items-center gap-2.5">
+        Mon profil
+        <IconeFlottante icon={User} className="text-primaire-600 dark:text-primaire-400" />
+      </h1>
       <p className="sous-titre">Vos informations personnelles (US-01, US-03)</p>
       {message && <div className={`alerte alerte-${message.type}`}>{message.texte}</div>}
 
@@ -37,7 +43,7 @@ export default function Profil() {
         </div>
 
         <form className="carte" onSubmit={enregistrer}>
-          <h2>✏️ Modifier</h2>
+          <h2 className="flex items-center gap-2"><Pencil className="w-4 h-4" /> Modifier</h2>
           <label>Nom</label>
           <input value={f.nom} onChange={(e) => setF({ ...f, nom: e.target.value })} required />
           <label>Prénom</label>
@@ -47,7 +53,11 @@ export default function Profil() {
       </div>
 
       <div className="carte mt-4">
-        <h2>🔐 Sécurité</h2>
+        <h2 className="flex items-center gap-2">
+          <ShieldCheck className="w-5 h-5 text-primaire-600 dark:text-primaire-400" /> Sécurité
+          <PopoverInfo titre="Sécurité du compte"
+            description="Connexion en deux étapes : mot de passe puis code à 6 chiffres envoyé par email. Après 5 tentatives échouées, le compte est verrouillé 15 minutes. Cliquez à l'extérieur pour fermer." />
+        </h2>
         <p className="sous-titre !mb-0">
           Connexion protégée par double authentification (code à 6 chiffres) ·
           verrouillage automatique après 5 tentatives échouées ·

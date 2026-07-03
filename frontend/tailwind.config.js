@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: ['./index.html', './src/**/*.{js,jsx}'],
+  content: ['./index.html', './src/**/*.{js,jsx,ts,tsx}'],
   // Mode sombre activé par l'attribut data-theme="sombre" (géré dans AuthContext)
   darkMode: ['class', '[data-theme="sombre"]'],
   theme: {
@@ -36,6 +36,11 @@ export default {
           foreground: 'rgb(var(--hue-card-foreground) / <alpha-value>)',
         },
         border: 'rgb(var(--hue-border) / <alpha-value>)',
+        secondary: 'rgb(var(--hue-border) / <alpha-value>)',
+        popover: {
+          DEFAULT: 'rgb(var(--hue-card) / <alpha-value>)',
+          foreground: 'rgb(var(--hue-card-foreground) / <alpha-value>)',
+        },
       },
       fontFamily: {
         sans: ['"Segoe UI"', 'system-ui', 'sans-serif'],
@@ -61,11 +66,21 @@ export default {
           '0%, 100%': { transform: 'scale(1)' },
           '50%': { transform: 'scale(1.06)' },
         },
+        'fade-in': {
+          from: { opacity: '0', transform: 'scale(0.96)' },
+          to: { opacity: '1', transform: 'scale(1)' },
+        },
+        'fade-out': {
+          from: { opacity: '1' },
+          to: { opacity: '0' },
+        },
       },
       animation: {
         degrade: 'degrade-mouvant 8s ease infinite',
         apparition: 'apparition 0.45s ease both',
         pulsation: 'pulsation 1s ease',
+        'fade-in': 'fade-in 0.15s ease-out',
+        'fade-out': 'fade-out 0.1s ease-in',
       },
     },
   },

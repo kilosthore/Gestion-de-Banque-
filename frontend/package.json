@@ -10,8 +10,10 @@
     "start": "vite preview --host 0.0.0.0 --port 3000 --strictPort"
   },
   "dependencies": {
+    "@ark-ui/react": "^5.37.2",
     "@paper-design/shaders-react": "^0.0.76",
     "@paypal/react-paypal-js": "^10.1.1",
+    "framer-motion": "^12.42.2",
     "lucide-react": "^1.20.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

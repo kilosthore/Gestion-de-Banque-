@@ -1,5 +1,10 @@
 import { useEffect, useState } from 'react';
+import {
+  Wrench, Users, CreditCard, ArrowLeftRight, Check, X, RotateCcw,
+  Clock, CheckCircle2, XCircle,
+} from 'lucide-react';
 import { api } from '../api/client';
+import { IconeAction, IconeFlottante } from '../components/ui/icone-action';
 
 /** US-21 — Paramètres globaux · US-22 — Réinitialiser un profil client */
 export default function Admin() {
@@ -73,19 +78,25 @@ export default function Admin() {
 
   return (
     <div>
-      <h1>Administration 🛠️</h1>
+      <h1 className="flex items-center gap-2.5">
+        Administration
+        <IconeFlottante icon={Wrench} className="text-primaire-600 dark:text-primaire-400" />
+      </h1>
       <p className="sous-titre">Paramètres globaux et gestion des profils clients</p>
       {message && <div className={`alerte alerte-${message.type}`}>{message.texte}</div>}
 
       {stats && (
         <div className="grille grille-3 mb-4">
           <div className="carte carte-compte text-center">
+            <IconeFlottante icon={Users} className="w-full opacity-90 mb-1" />
             <p className="opacity-90">Clients</p><h1 className="text-3xl">{stats.clients}</h1>
           </div>
           <div className="carte carte-compte text-center">
+            <IconeFlottante icon={CreditCard} className="w-full opacity-90 mb-1" />
             <p className="opacity-90">Comptes</p><h1 className="text-3xl">{stats.comptes}</h1>
           </div>
           <div className="carte carte-compte text-center">
+            <IconeFlottante icon={ArrowLeftRight} className="w-full opacity-90 mb-1" />
             <p className="opacity-90">Transactions</p><h1 className="text-3xl">{stats.transactions}</h1>
           </div>
         </div>
@@ -125,7 +136,9 @@ export default function Admin() {
                     background: d.statutDossier === 'rejete' ? '#ef4444' : '#f59e0b',
                     color: 'white',
                   }}>
-                    {d.statutDossier === 'rejete' ? '❌ Rejeté' : '⏳ En vérification'}
+                    {d.statutDossier === 'rejete'
+                      ? <><XCircle className="inline w-3.5 h-3.5 mr-1 -mt-0.5" />Rejeté</>
+                      : <><Clock className="inline w-3.5 h-3.5 mr-1 -mt-0.5" />En vérification</>}
                   </span>
                 </div>
                 <p className="sous-titre !mt-2 !mb-1">
@@ -140,10 +153,10 @@ export default function Admin() {
                       onChange={(e) => setCommentaires({ ...commentaires, [`dossier-${d._id}`]: e.target.value })}
                     />
                     <div className="flex gap-2 mt-2">
-                      <button className="btn !px-3 !py-1.5" style={{ background: '#10b981' }}
-                        onClick={() => deciderDossier(d._id, 'actif')}>✅ Valider</button>
-                      <button className="btn btn-danger !px-3 !py-1.5"
-                        onClick={() => deciderDossier(d._id, 'rejete')}>❌ Rejeter</button>
+                      <IconeAction icon={Check} label="Valider le dossier" variante="succes"
+                        testId={`valider-dossier-${d._id}`} onClick={() => deciderDossier(d._id, 'actif')} />
+                      <IconeAction icon={X} label="Rejeter le dossier" variante="danger"
+                        testId={`rejeter-dossier-${d._id}`} onClick={() => deciderDossier(d._id, 'rejete')} />
                     </div>
                   </div>
                 )}
@@ -166,7 +179,11 @@ export default function Admin() {
                   background: d.statut === 'approuvee' ? '#10b981' : d.statut === 'refusee' ? '#ef4444' : '#f59e0b',
                   color: 'white',
                 }}>
-                  {d.statut === 'en_attente' ? '⏳ En attente' : d.statut === 'approuvee' ? '✅ Approuvée' : '❌ Refusée'}
+                  {d.statut === 'en_attente'
+                    ? <><Clock className="inline w-3.5 h-3.5 mr-1 -mt-0.5" />En attente</>
+                    : d.statut === 'approuvee'
+                      ? <><CheckCircle2 className="inline w-3.5 h-3.5 mr-1 -mt-0.5" />Approuvée</>
+                      : <><XCircle className="inline w-3.5 h-3.5 mr-1 -mt-0.5" />Refusée</>}
                 </span>
               </div>
               <p className="sous-titre !mb-1 !mt-2">
@@ -179,10 +196,10 @@ export default function Admin() {
                     onChange={(e) => setCommentaires({ ...commentaires, [d._id]: e.target.value })}
                   />
                   <div className="flex gap-2 mt-2">
-                    <button className="btn !px-3 !py-1.5" style={{ background: '#10b981' }}
-                      onClick={() => deciderPret(d._id, 'approuvee')}>✅ Approuver</button>
-                    <button className="btn btn-danger !px-3 !py-1.5"
-                      onClick={() => deciderPret(d._id, 'refusee')}>❌ Refuser</button>
+                    <IconeAction icon={Check} label="Approuver le prêt" variante="succes"
+                      testId={`approuver-pret-${d._id}`} onClick={() => deciderPret(d._id, 'approuvee')} />
+                    <IconeAction icon={X} label="Refuser le prêt" variante="danger"
+                      testId={`refuser-pret-${d._id}`} onClick={() => deciderPret(d._id, 'refusee')} />
                   </div>
                 </div>
               )}
@@ -202,9 +219,8 @@ export default function Admin() {
                 <b>{c.prenom} {c.nom}</b><br />
                 <small className="text-amber-700 dark:text-primaire-400">{c.email}</small>
               </div>
-              <button className="btn btn-secondaire !px-3 !py-1.5" onClick={() => reinitialiser(c._id, c.nom)}>
-                🔄 Réinitialiser
-              </button>
+              <IconeAction icon={RotateCcw} label="Réinitialiser le profil" variante="neutre"
+                testId={`reinitialiser-${c._id}`} onClick={() => reinitialiser(c._id, c.nom)} />
             </div>
           ))}
         </div>
