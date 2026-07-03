@@ -1,3 +1,4 @@
+import { BarChart3 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, CartesianGrid } from 'recharts';
 
 const MOIS = ['', 'Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
@@ -11,7 +12,7 @@ export default function SpendingChart({ data }) {
 
   return (
     <div className="carte" style={{ marginTop: 20 }}>
-      <h2>📊 Entrées vs sorties — 6 derniers mois</h2>
+      <h2 className="flex items-center gap-2"><BarChart3 className="w-5 h-5" /> Entrées vs sorties — 6 derniers mois</h2>
       {donnees.length === 0 ? (
         <p className="sous-titre">Aucune donnée pour cette période.</p>
       ) : (

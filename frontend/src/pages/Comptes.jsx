@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Receipt, PiggyBank, CreditCard, Landmark, TrendingUp, BarChart3, Plus } from 'lucide-react';
 import { api } from '../api/client';
+import { IconeFlottante } from '../components/ui/icone-action';
 
 /** US-04 — Liste des comptes + ouverture d'un nouveau compte */
 export default function Comptes() {
@@ -22,11 +24,14 @@ export default function Comptes() {
     }
   };
 
-  const icones = { cheque: '🧾', epargne: '🐷', credit: '💳', pret: '🏠', investissement: '📈' };
+  const icones = { cheque: Receipt, epargne: PiggyBank, credit: CreditCard, pret: Landmark, investissement: TrendingUp };
 
   return (
     <div>
-      <h1>Mes comptes</h1>
+      <h1 className="flex items-center gap-2.5">
+        Mes comptes
+        <IconeFlottante icon={CreditCard} className="text-primaire-600 dark:text-primaire-400" />
+      </h1>
       <p className="sous-titre">Consultez vos soldes et ouvrez de nouveaux comptes</p>
       {message && <div className="alerte alerte-succes">{message}</div>}
 
@@ -34,7 +39,7 @@ export default function Comptes() {
         {comptes.map((c) => (
           <Link key={c._id} to={`/comptes/${c._id}`} style={{ textDecoration: 'none' }}>
             <div className="carte carte-compte">
-              <p style={{ fontSize: '1.6rem' }}>{icones[c.type]}</p>
+              <IconeFlottante icon={icones[c.type] || BarChart3} className="mb-1 [&>svg]:w-7 [&>svg]:h-7" />
               <p style={{ textTransform: 'capitalize', fontWeight: 700 }}>
                 {c.kind === 'CarteCredit' ? 'Carte de crédit' : c.type}
               </p>
@@ -50,7 +55,7 @@ export default function Comptes() {
       </div>
 
       <div className="carte" style={{ maxWidth: 420 }}>
-        <h2>➕ Ouvrir un compte</h2>
+        <h2 className="flex items-center gap-2"><Plus className="w-5 h-5" /> Ouvrir un compte</h2>
         <label>Type de compte</label>
         <select value={type} onChange={(e) => setType(e.target.value)}>
           <option value="cheque">Chèque</option>

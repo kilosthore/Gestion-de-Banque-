@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { Landmark, PiggyBank, CreditCard, Home, TrendingUp, BarChart3 } from 'lucide-react';
 
 const LIBELLE_TYPE = {
   cheque: 'Compte chèque',
@@ -8,16 +9,16 @@ const LIBELLE_TYPE = {
   investissement: 'Investissement',
 };
 const ICONE_TYPE = {
-  cheque: '🏦',
-  epargne: '💰',
-  credit: '💳',
-  pret: '🏠',
-  investissement: '📈',
+  cheque: Landmark,
+  epargne: PiggyBank,
+  credit: CreditCard,
+  pret: Home,
+  investissement: TrendingUp,
 };
 
 function CarteCompte({ account }) {
   const libelle = LIBELLE_TYPE[account.type] || account.type;
-  const icone = ICONE_TYPE[account.type] || '📊';
+  const Icone = ICONE_TYPE[account.type] || BarChart3;
   const masque = '••• ' + (account.numero || '').slice(-4);
 
   // CarteCredit : affichage utilisé / limite + barre de progression
@@ -30,7 +31,7 @@ function CarteCompte({ account }) {
     return (
       <div className="carte" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h3 style={{ margin: 0 }}>{icone} {libelle}</h3>
+          <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}><Icone className="w-4 h-4" /> {libelle}</h3>
           <span className="sous-titre" style={{ margin: 0 }}>{masque}</span>
         </div>
         <p style={{ margin: 0 }}>
@@ -51,7 +52,7 @@ function CarteCompte({ account }) {
   return (
     <div className="carte" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h3 style={{ margin: 0 }}>{icone} {libelle}</h3>
+        <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}><Icone className="w-4 h-4" /> {libelle}</h3>
         <span className="sous-titre" style={{ margin: 0 }}>{masque}</span>
       </div>
       <p style={{ fontSize: '1.6rem', fontWeight: 700, margin: 0, color: 'var(--orange-fonce)' }}>
@@ -68,7 +69,7 @@ export default function AccountCards({ accounts }) {
   if (!accounts || accounts.length === 0) {
     return (
       <div className="carte">
-        <h2>💳 Mes comptes</h2>
+        <h2 className="flex items-center gap-2"><CreditCard className="w-5 h-5" /> Mes comptes</h2>
         <p className="sous-titre">Aucun compte ouvert.</p>
         <Link to="/comptes" className="btn">Ouvrir un compte</Link>
       </div>
@@ -76,7 +77,7 @@ export default function AccountCards({ accounts }) {
   }
   return (
     <div className="carte">
-      <h2>💳 Mes comptes ({accounts.length})</h2>
+      <h2 className="flex items-center gap-2"><CreditCard className="w-5 h-5" /> Mes comptes ({accounts.length})</h2>
       <div className="grille grille-2" style={{ marginTop: 12 }}>
         {accounts.map((a) => <CarteCompte key={a._id} account={a} />)}
       </div>

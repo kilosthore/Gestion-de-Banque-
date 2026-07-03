@@ -53,7 +53,7 @@ export default function Layout({ children }) {
         { icon: ArrowLeftRight, label: 'Opérations', onClick: () => navigate('/operations') },
         { icon: History, label: 'Historique', onClick: () => navigate('/historique') },
         { icon: Wallet, label: 'PayPal', onClick: () => navigate('/paypal') },
-        { icon: Bell, label: 'Notifications', onClick: () => navigate('/notifications') },
+        { icon: Bell, label: 'Notifications', onClick: () => navigate('/notifications'), badge: nonLues },
         { icon: User, label: 'Mon profil', onClick: () => navigate('/profil') },
       ];
 

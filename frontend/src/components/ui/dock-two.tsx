@@ -9,6 +9,7 @@ interface DockProps {
     icon: LucideIcon
     label: string
     onClick?: () => void
+    badge?: number
   }[]
 }
 
@@ -17,6 +18,7 @@ interface DockIconButtonProps {
   label: string
   onClick?: () => void
   className?: string
+  badge?: number
 }
 
 const floatingAnimation = {
@@ -32,7 +34,7 @@ const floatingAnimation = {
 }
 
 const DockIconButton = React.forwardRef<HTMLButtonElement, DockIconButtonProps>(
-  ({ icon: Icon, label, onClick, className }, ref) => {
+  ({ icon: Icon, label, onClick, className, badge }, ref) => {
     return (
       <motion.button
         ref={ref}
@@ -47,6 +49,11 @@ const DockIconButton = React.forwardRef<HTMLButtonElement, DockIconButtonProps>(
         )}
       >
         <Icon className="w-5 h-5 text-foreground" />
+        {typeof badge === 'number' && badge > 0 && (
+          <span className="absolute top-0.5 right-0.5 bg-red-600 text-white rounded-full text-[10px] leading-none px-1.5 py-0.5 font-extrabold">
+            {badge}
+          </span>
+        )}
         <span className={cn(
           "absolute -top-8 left-1/2 -translate-x-1/2",
           "px-2 py-1 rounded text-xs",

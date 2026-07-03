@@ -50,7 +50,10 @@ export default function PaiementPaypal() {
 
   return (
     <div data-testid="page-paypal">
-      <h1>Payer avec PayPal 🅿️</h1>
+      <h1 className="flex items-center gap-2.5">
+        Payer avec PayPal
+        <IconeFlottante icon={Wallet} className="text-primaire-600 dark:text-primaire-400" />
+      </h1>
       <p className="sous-titre">Alimentez un compte ou souscrivez un produit financier (environnement sandbox)</p>
 
       {erreurConfig && <div className="carte" data-testid="paypal-config-erreur">⚠️ {erreurConfig}</div>}

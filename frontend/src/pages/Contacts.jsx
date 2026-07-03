@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
+import { Users, Building2, Plus, Pencil, Trash2 } from 'lucide-react';
 import { api } from '../api/client';
-
-/** US-08 — Bénéficiaires · US-10 — Fournisseurs */
+import { IconeAction, IconeFlottante } from '../components/ui/icone-action';
 export default function Contacts() {
   const [onglet, setOnglet] = useState('beneficiaires');
   const [beneficiaires, setBeneficiaires] = useState([]);
@@ -44,12 +44,19 @@ export default function Contacts() {
 
   return (
     <div>
-      <h1>Bénéficiaires & fournisseurs</h1>
+      <h1 className="flex items-center gap-2.5">
+        Bénéficiaires & fournisseurs
+        <IconeFlottante icon={Users} className="text-primaire-600 dark:text-primaire-400" />
+      </h1>
       <p className="sous-titre">Gérez vos destinataires de virements et de paiements</p>
 
       <div className="onglets">
-        <button className={`onglet ${onglet === 'beneficiaires' ? 'actif' : ''}`} onClick={() => setOnglet('beneficiaires')}>👥 Bénéficiaires</button>
-        <button className={`onglet ${onglet === 'fournisseurs' ? 'actif' : ''}`} onClick={() => setOnglet('fournisseurs')}>🏢 Fournisseurs</button>
+        <button className={`onglet flex items-center gap-1.5 ${onglet === 'beneficiaires' ? 'actif' : ''}`} onClick={() => setOnglet('beneficiaires')}>
+          <Users className="w-4 h-4" /> Bénéficiaires
+        </button>
+        <button className={`onglet flex items-center gap-1.5 ${onglet === 'fournisseurs' ? 'actif' : ''}`} onClick={() => setOnglet('fournisseurs')}>
+          <Building2 className="w-4 h-4" /> Fournisseurs
+        </button>
       </div>
 
       {message && <div className={`alerte alerte-${message.type}`}>{message.texte}</div>}
@@ -57,7 +64,10 @@ export default function Contacts() {
       {onglet === 'beneficiaires' ? (
         <div className="grille grille-2">
           <form className="carte" onSubmit={ajouterB}>
-            <h2>{edition ? '✏️ Modifier' : '➕ Ajouter'} un bénéficiaire (US-08)</h2>
+            <h2 className="flex items-center gap-2">
+              {edition ? <Pencil className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
+              {edition ? 'Modifier' : 'Ajouter'} un bénéficiaire (US-08)
+            </h2>
             <label>Nom</label>
             <input value={fb.nom} onChange={(e) => setFb({ ...fb, nom: e.target.value })} required />
             <label>Coordonnées (email ou n° de compte)</label>
@@ -75,10 +85,10 @@ export default function Contacts() {
               <div key={b._id} className="flex justify-between items-center py-2.5 border-t border-primaire-200 dark:border-sombre-bordure">
                 <div><b>{b.nom}</b><br /><small className="text-amber-700 dark:text-primaire-400">{b.coordonnees}</small></div>
                 <div className="flex gap-1.5">
-                  <button className="btn btn-secondaire !px-3 !py-1.5"
-                    onClick={() => { setEdition(b._id); setFb({ nom: b.nom, coordonnees: b.coordonnees }); }}>✏️</button>
-                  <button className="btn btn-danger !px-3 !py-1.5"
-                    onClick={async () => { await api.del(`/beneficiaires/${b._id}`); charger(); }}>🗑️</button>
+                  <IconeAction icon={Pencil} label="Modifier" variante="neutre" testId={`modifier-beneficiaire-${b._id}`}
+                    onClick={() => { setEdition(b._id); setFb({ nom: b.nom, coordonnees: b.coordonnees }); }} />
+                  <IconeAction icon={Trash2} label="Supprimer" variante="danger" testId={`supprimer-beneficiaire-${b._id}`}
+                    onClick={async () => { await api.del(`/beneficiaires/${b._id}`); charger(); }} />
                 </div>
               </div>
             ))}
@@ -87,7 +97,7 @@ export default function Contacts() {
       ) : (
         <div className="grille grille-2">
           <form className="carte" onSubmit={ajouterF}>
-            <h2>➕ Nouveau fournisseur (US-10)</h2>
+            <h2 className="flex items-center gap-2"><Plus className="w-5 h-5" /> Nouveau fournisseur (US-10)</h2>
             <label>Nom</label>
             <input value={ff.nom} onChange={(e) => setFf({ ...ff, nom: e.target.value })} required />
             <label>Catégorie</label>

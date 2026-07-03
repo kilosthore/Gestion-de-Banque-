@@ -76,6 +76,19 @@ vérifications post-déploiement (/api/sante, absence codeDemo, audit).
 - Tests : iteration_3 (7/8 puis bug pointer-events corrigé et vérifié par
   clic souris réel : toggle thème OK, dock nav OK, approbation prêt e2e OK).
 
+## Itération UI v2 (03/07/2026) — extension à toutes les pages
+- Dock : pastille de notifications non-lues sur l'icône Bell (prop badge).
+- Icônes lucide + IconeFlottante/IconeAction étendues à : Opérations (onglets +
+  titres de formulaires), Historique (onglets), Objectifs (suppression via
+  IconeAction Trash2, bouton Verser avec Coins), Comptes (cartes de comptes avec
+  icônes flottantes), Notifications, Prêts (badges Clock/CheckCircle2/XCircle),
+  Contacts (édition/suppression via IconeAction), PayPal (titre), et dashboard
+  (QuickActions flottantes, AccountCards, RecentTransactions, SavingsGoals,
+  SpendingChart).
+- Bug corrigé : occurrence résiduelle `{icone}` dans AccountCards (page blanche
+  dashboard) — replace_all n'avait matché qu'une occurrence sur deux.
+- Vérifié par screenshots : 6 pages client + dashboard rendent sans erreur JS.
+
 ## Backlog
 - P0 : obtenir SMTP_USER/SMTP_PASS de l'utilisateur → désactive le mode démo OTP
 - P1 : déploiement production (env cible devra fournir MySQL externe via DB_*)
