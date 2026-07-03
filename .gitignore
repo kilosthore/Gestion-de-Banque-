@@ -4,3 +4,9 @@ dist/
 *.log
 .DS_Store
 coverage/
+.env.*
+*.env
+credentials.json
+*.pem
+*.key
+.credentials
