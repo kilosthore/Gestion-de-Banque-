@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
+import { Coins, Pencil, ScrollText, Clock, CheckCircle2, XCircle } from 'lucide-react';
 import { api } from '../api/client';
-
-/** US-24 — Demandes de prêt : soumission + historique avec statuts */
+import { IconeFlottante } from '../components/ui/icone-action';
 export default function Prets() {
   const [demandes, setDemandes] = useState([]);
   const [f, setF] = useState({ montant: '', duree: '', motif: '', revenuMensuel: '' });
@@ -35,22 +35,25 @@ export default function Prets() {
   };
 
   const badgeStatut = (statut) => {
-    if (statut === 'approuvee') return <span className="badge" style={{ background: '#10b981', color: 'white' }}>✅ Approuvée</span>;
-    if (statut === 'refusee') return <span className="badge" style={{ background: '#ef4444', color: 'white' }}>❌ Refusée</span>;
-    return <span className="badge" style={{ background: '#f59e0b', color: 'white' }}>⏳ En attente</span>;
+    if (statut === 'approuvee') return <span className="badge" style={{ background: '#10b981', color: 'white' }}><CheckCircle2 className="inline w-3.5 h-3.5 mr-1 -mt-0.5" />Approuvée</span>;
+    if (statut === 'refusee') return <span className="badge" style={{ background: '#ef4444', color: 'white' }}><XCircle className="inline w-3.5 h-3.5 mr-1 -mt-0.5" />Refusée</span>;
+    return <span className="badge" style={{ background: '#f59e0b', color: 'white' }}><Clock className="inline w-3.5 h-3.5 mr-1 -mt-0.5" />En attente</span>;
   };
 
   const aUneDemandeEnAttente = demandes.some((d) => d.statut === 'en_attente');
 
   return (
     <div>
-      <h1>Demandes de prêt 💰</h1>
-      <p className="sous-titre">Soumettez une demande de prêt et suivez son statut (US-24)</p>
+      <h1 className="flex items-center gap-2.5">
+        Demandes de prêt
+        <IconeFlottante icon={Coins} className="text-primaire-600 dark:text-primaire-400" />
+      </h1>
+      <p className="sous-titre">Soumettez une demande de prêt et suivez son statut</p>
       {message && <div className={`alerte alerte-${message.type}`}>{message.texte}</div>}
 
       <div className="grille grille-2">
         <form className="carte" onSubmit={soumettre}>
-          <h2>📝 Nouvelle demande</h2>
+          <h2 className="flex items-center gap-2"><Pencil className="w-5 h-5" /> Nouvelle demande</h2>
           {aUneDemandeEnAttente && (
             <div className="alerte alerte-info">
               Vous avez déjà une demande en attente. Patientez la décision avant d'en soumettre une nouvelle.
@@ -87,7 +90,7 @@ export default function Prets() {
         </form>
 
         <div className="carte">
-          <h2>📜 Historique de mes demandes</h2>
+          <h2 className="flex items-center gap-2"><ScrollText className="w-5 h-5" /> Historique de mes demandes</h2>
           {demandes.length === 0 && <p className="sous-titre">Aucune demande pour l'instant.</p>}
           {demandes.map((d) => (
             <div key={d._id} className="py-3 border-t border-primaire-200 dark:border-sombre-bordure">

@@ -1,5 +1,9 @@
 import { useEffect, useState } from 'react';
+import {
+  ArrowLeftRight, Banknote, Repeat, Zap, Receipt, Camera, RotateCw, CalendarClock,
+} from 'lucide-react';
 import { api } from '../api/client';
+import { IconeFlottante } from '../components/ui/icone-action';
 
 /**
  * Opérations bancaires — onglets :
@@ -7,12 +11,12 @@ import { api } from '../api/client';
  * US-09 facture · US-12 chèque photo · US-17 récurrente
  */
 const ONGLETS = [
-  ['depot', '💰 Dépôt / Retrait'],
-  ['interne', '🔁 Virement interne'],
-  ['interac', '⚡ Interac'],
-  ['facture', '🧾 Facture'],
-  ['cheque', '📷 Chèque photo'],
-  ['recurrente', '🔄 Récurrente'],
+  ['depot', Banknote, 'Dépôt / Retrait'],
+  ['interne', Repeat, 'Virement interne'],
+  ['interac', Zap, 'Interac'],
+  ['facture', Receipt, 'Facture'],
+  ['cheque', Camera, 'Chèque photo'],
+  ['recurrente', RotateCw, 'Récurrente'],
 ];
 
 export default function Operations() {
@@ -104,13 +108,18 @@ export default function Operations() {
 
   return (
     <div>
-      <h1>Opérations</h1>
+      <h1 className="flex items-center gap-2.5">
+        Opérations
+        <IconeFlottante icon={ArrowLeftRight} className="text-primaire-600 dark:text-primaire-400" />
+      </h1>
       <p className="sous-titre">Dépôts, retraits, virements et paiements</p>
 
       <div className="onglets">
-        {ONGLETS.map(([cle, libelle]) => (
-          <button key={cle} className={`onglet ${onglet === cle ? 'actif' : ''}`}
-            onClick={() => { setOnglet(cle); setMessage(null); }}>{libelle}</button>
+        {ONGLETS.map(([cle, Icone, libelle]) => (
+          <button key={cle} className={`onglet flex items-center gap-1.5 ${onglet === cle ? 'actif' : ''}`}
+            onClick={() => { setOnglet(cle); setMessage(null); }}>
+            <Icone className="w-4 h-4" /> {libelle}
+          </button>
         ))}
       </div>
 
@@ -119,7 +128,7 @@ export default function Operations() {
       <form onSubmit={soumettre} className="carte max-w-lg">
         {onglet === 'depot' && (
           <>
-            <h2>💰 Dépôt ou retrait (US-11)</h2>
+            <h2 className="flex items-center gap-2"><Banknote className="w-5 h-5" /> Dépôt ou retrait</h2>
             <label>Opération</label>
             <select value={f.type} onChange={maj('type')}>
               <option value="depot">Dépôt</option>
@@ -130,14 +139,14 @@ export default function Operations() {
         )}
         {onglet === 'interne' && (
           <>
-            <h2>🔁 Virement entre mes comptes (US-06)</h2>
+            <h2 className="flex items-center gap-2"><Repeat className="w-5 h-5" /> Virement entre mes comptes</h2>
             <ChoixCompte libelle="Compte source" />
             <ChoixCompte libelle="Compte destination" champ="compteDestId" exclure={f.compteId} />
           </>
         )}
         {onglet === 'interac' && (
           <>
-            <h2>⚡ Virement Interac (US-07)</h2>
+            <h2 className="flex items-center gap-2"><Zap className="w-5 h-5" /> Virement Interac</h2>
             <ChoixCompte libelle="Compte source" />
             <label>Bénéficiaire</label>
             <select value={f.beneficiaireId || ''} onChange={maj('beneficiaireId')} required>
@@ -149,7 +158,7 @@ export default function Operations() {
         )}
         {onglet === 'facture' && (
           <>
-            <h2>🧾 Payer une facture (US-09)</h2>
+            <h2 className="flex items-center gap-2"><Receipt className="w-5 h-5" /> Payer une facture</h2>
             <ChoixCompte libelle="Compte source" />
             <label>Fournisseur</label>
             <select value={f.fournisseurId || ''} onChange={maj('fournisseurId')} required>
@@ -160,7 +169,7 @@ export default function Operations() {
         )}
         {onglet === 'cheque' && (
           <>
-            <h2>📷 Déposer un chèque par photo (US-12)</h2>
+            <h2 className="flex items-center gap-2"><Camera className="w-5 h-5" /> Déposer un chèque par photo</h2>
             <ChoixCompte />
             <label>Photo du chèque</label>
             <input type="file" accept="image/*" onChange={lireImage} required className="!p-2" />
@@ -169,7 +178,7 @@ export default function Operations() {
         )}
         {onglet === 'recurrente' && (
           <>
-            <h2>🔄 Transaction récurrente (US-17)</h2>
+            <h2 className="flex items-center gap-2"><RotateCw className="w-5 h-5" /> Transaction récurrente</h2>
             <ChoixCompte libelle="Compte source" />
             <label>Fournisseur (optionnel)</label>
             <select value={f.fournisseurId || ''} onChange={maj('fournisseurId')}>
@@ -195,7 +204,7 @@ export default function Operations() {
 
       {onglet === 'recurrente' && planifiees.length > 0 && (
         <div className="carte max-w-lg mt-4">
-          <h2>📅 Mes transactions planifiées</h2>
+          <h2 className="flex items-center gap-2"><CalendarClock className="w-5 h-5" /> Mes transactions planifiées</h2>
           <table>
             <tbody>
               {planifiees.map((t) => (

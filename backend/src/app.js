@@ -17,14 +17,17 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'"],
+      // PayPal (sandbox) : SDK JS + iframes des boutons — liste blanche stricte,
+      // aucun autre domaine externe n'est autorisé.
+      scriptSrc: ["'self'", 'https://www.paypal.com', 'https://www.sandbox.paypal.com'],
       // 'unsafe-inline' requis pour les attributs style= de React/recharts ;
       // les scripts inline restent interdits (protection XSS principale).
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      imgSrc: ["'self'", 'data:'],            // data: pour l'aperçu des chèques en base64
-      connectSrc: ["'self'"],
-      fontSrc: ["'self'", 'data:'],
+      styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'], // IBM Plex Sans (thème)
+      imgSrc: ["'self'", 'data:', 'https://www.paypalobjects.com'], // data: pour l'aperçu des chèques en base64
+      connectSrc: ["'self'", 'https://www.paypal.com', 'https://www.sandbox.paypal.com'],
+      fontSrc: ["'self'", 'data:', 'https://fonts.gstatic.com'],
       objectSrc: ["'none'"],
+      frameSrc: ['https://www.paypal.com', 'https://www.sandbox.paypal.com'],
       frameAncestors: ["'none'"],
       baseUri: ["'self'"],
       formAction: ["'self'"],
@@ -56,6 +59,7 @@ app.use('/api/comptes', require('./routes/comptes.routes'));
 app.use('/api/transactions', require('./routes/transactions.routes'));
 app.use('/api/prets', require('./routes/prets.routes'));
 app.use('/api/dashboard', require('./routes/dashboard.routes'));
+app.use('/api/paypal', require('./routes/paypal.routes'));
 app.use('/api', require('./routes/divers.routes'));
 app.use('/api/admin', require('./routes/admin.routes'));
 

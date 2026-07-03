@@ -1,3 +1,4 @@
+import { ScrollText } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 /** Catégorisation auto basée sur des mots-clés dans la description */
@@ -45,7 +46,7 @@ export default function RecentTransactions({ transactions }) {
   return (
     <div className="carte" style={{ marginTop: 20 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h2 style={{ margin: 0 }}>📜 Dernières transactions</h2>
+        <h2 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}><ScrollText className="w-5 h-5" /> Dernières transactions</h2>
         <Link to="/historique" className="sous-titre">Voir tout →</Link>
       </div>
       {(!transactions || transactions.length === 0) ? (

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
+import { Bell } from 'lucide-react';
 import { api } from '../api/client';
-
-/** US-20 — Notifications (solde faible, objectifs atteints…) */
+import { IconeFlottante } from '../components/ui/icone-action';
 export default function Notifications() {
   const [notifications, setNotifications] = useState([]);
 
@@ -15,8 +15,11 @@ export default function Notifications() {
     <div>
       <div className="entete-page">
         <div>
-          <h1>Notifications 🔔</h1>
-          <p className="sous-titre">Alertes de solde faible et messages importants (US-20)</p>
+          <h1 className="flex items-center gap-2.5">
+            Notifications
+            <IconeFlottante icon={Bell} className="text-primaire-600 dark:text-primaire-400" />
+          </h1>
+          <p className="sous-titre">Alertes de solde faible et messages importants</p>
         </div>
         {notifications.some((n) => !n.lue) && (
           <button className="btn btn-secondaire" onClick={toutLire}>Tout marquer lu ✔</button>

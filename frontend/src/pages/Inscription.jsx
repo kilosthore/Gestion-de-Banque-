@@ -239,7 +239,7 @@ export default function Inscription() {
   return (
     <div className="ecran-auth">
       <div className="boite-auth carte anime" style={{ maxWidth: 720 }}>
-        <h1 style={{ textAlign: 'center', marginBottom: 8 }}>Ouvrir un compte 🏦</h1>
+        <h1 style={{ textAlign: 'center', marginBottom: 8 }}>Ouvrir un compte</h1>
         <p className="sous-titre" style={{ textAlign: 'center' }}>
           6 étapes pour devenir client. Vos données sont sauvegardées automatiquement.
         </p>

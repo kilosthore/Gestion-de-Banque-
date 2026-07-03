@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Landmark } from 'lucide-react';
 import { api } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 
@@ -90,7 +91,10 @@ export default function Connexion() {
   return (
     <div className="ecran-auth">
       <div className="boite-auth carte anime">
-        <h1 style={{ textAlign: 'center' }}>🏦 Ma Banque</h1>
+        <h1 className="flex items-center justify-center gap-2">
+          <Landmark className="w-6 h-6 text-primaire-400" aria-hidden="true" />
+          <span className="texte-or">Ma Banque</span>
+        </h1>
         <p className="sous-titre" style={{ textAlign: 'center' }}>
           {etape === 1 ? 'Connexion sécurisée' : 'Vérification en 2 étapes'}
         </p>

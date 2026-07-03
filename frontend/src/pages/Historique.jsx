@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
+import { History, ScrollText, FileText } from 'lucide-react';
 import { api } from '../api/client';
-
-/** US-13/14 historique + filtres · US-15 relevé mensuel */
+import { IconeFlottante } from '../components/ui/icone-action';
 export default function Historique() {
   const [onglet, setOnglet] = useState('historique');
   const [transactions, setTransactions] = useState([]);
@@ -25,12 +25,19 @@ export default function Historique() {
 
   return (
     <div>
-      <h1>Historique & relevés</h1>
+      <h1 className="flex items-center gap-2.5">
+        Historique & relevés
+        <IconeFlottante icon={History} className="text-primaire-600 dark:text-primaire-400" />
+      </h1>
       <p className="sous-titre">Recherchez vos transactions et consultez vos relevés mensuels</p>
 
       <div className="onglets">
-        <button className={`onglet ${onglet === 'historique' ? 'actif' : ''}`} onClick={() => setOnglet('historique')}>📜 Historique</button>
-        <button className={`onglet ${onglet === 'releve' ? 'actif' : ''}`} onClick={() => setOnglet('releve')}>📄 Relevé mensuel</button>
+        <button className={`onglet flex items-center gap-1.5 ${onglet === 'historique' ? 'actif' : ''}`} onClick={() => setOnglet('historique')}>
+          <ScrollText className="w-4 h-4" /> Historique
+        </button>
+        <button className={`onglet flex items-center gap-1.5 ${onglet === 'releve' ? 'actif' : ''}`} onClick={() => setOnglet('releve')}>
+          <FileText className="w-4 h-4" /> Relevé mensuel
+        </button>
       </div>
 
       {onglet === 'historique' ? (
@@ -108,7 +115,7 @@ export default function Historique() {
 
           {releve && (
             <div className="carte">
-              <h2>Relevé — {nomsMois[periode.mois - 1]} {periode.annee} (US-15)</h2>
+              <h2>Relevé — {nomsMois[periode.mois - 1]} {periode.annee}</h2>
               <div className="grille grille-3 my-4">
                 <div className="carte !p-4 text-center">
                   <p className="sous-titre !mb-1">Entrées</p>

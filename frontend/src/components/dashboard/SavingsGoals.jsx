@@ -1,10 +1,11 @@
+import { Target, Trophy } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function SavingsGoals({ goals }) {
   return (
     <div className="carte" style={{ marginTop: 20 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h2 style={{ margin: 0 }}>🎯 Mes objectifs d'épargne</h2>
+        <h2 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}><Target className="w-5 h-5" /> Mes objectifs d'épargne</h2>
         <Link to="/objectifs" className="sous-titre">Voir tous →</Link>
       </div>
       {(!goals || goals.length === 0) ? (
@@ -16,7 +17,12 @@ export default function SavingsGoals({ goals }) {
           {goals.map((g) => (
             <div key={g._id}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                <b>{g.progression >= 100 ? '🏆' : '🎯'} {g.nom}</b>
+                <b className="flex items-center gap-1.5">
+                  {g.progression >= 100
+                    ? <Trophy className="w-4 h-4 text-primaire-500" />
+                    : <Target className="w-4 h-4 text-primaire-600 dark:text-primaire-400" />}
+                  {g.nom}
+                </b>
                 <span className="sous-titre" style={{ margin: 0 }}>{g.progression} %</span>
               </div>
               <div className="progression-fond">

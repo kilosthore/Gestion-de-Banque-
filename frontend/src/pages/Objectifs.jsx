@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
+import { Target, Trophy, Plus, Trash2, Coins } from 'lucide-react';
 import { api } from '../api/client';
-
-/** US-19 — Objectifs d'épargne avec barre de progression animée */
+import { IconeAction, IconeFlottante } from '../components/ui/icone-action';
 export default function Objectifs() {
   const [objectifs, setObjectifs] = useState([]);
   const [comptes, setComptes] = useState([]);
@@ -39,13 +39,16 @@ export default function Objectifs() {
 
   return (
     <div>
-      <h1>Objectifs d'épargne 🎯</h1>
-      <p className="sous-titre">Définissez vos objectifs et suivez votre progression (US-19)</p>
+      <h1 className="flex items-center gap-2.5">
+        Objectifs d'épargne
+        <IconeFlottante icon={Target} className="text-primaire-600 dark:text-primaire-400" />
+      </h1>
+      <p className="sous-titre">Définissez vos objectifs et suivez votre progression</p>
       {message && <div className={`alerte alerte-${message.type}`}>{message.texte}</div>}
 
       <div className="grille grille-2">
         <form className="carte" onSubmit={creer}>
-          <h2>➕ Nouvel objectif</h2>
+          <h2 className="flex items-center gap-2"><Plus className="w-5 h-5" /> Nouvel objectif</h2>
           <label>Nom (ex. : Voyage, Auto…)</label>
           <input value={f.nom} onChange={(e) => setF({ ...f, nom: e.target.value })} required />
           <label>Montant cible ($)</label>
@@ -56,9 +59,15 @@ export default function Objectifs() {
         {objectifs.map((o) => (
           <div key={o._id} className="carte">
             <div className="flex justify-between items-center">
-              <h2 className="!mb-0">{o.progression >= 100 ? '🏆' : '🎯'} {o.nom}</h2>
-              <button className="btn btn-danger !px-3 !py-1.5"
-                onClick={async () => { await api.del(`/objectifs/${o._id}`); charger(); }}>🗑️</button>
+              <h2 className="!mb-0 flex items-center gap-2">
+                {o.progression >= 100
+                  ? <Trophy className="w-5 h-5 text-primaire-500" />
+                  : <Target className="w-5 h-5 text-primaire-600 dark:text-primaire-400" />}
+                {o.nom}
+              </h2>
+              <IconeAction icon={Trash2} label="Supprimer l'objectif" variante="danger"
+                testId={`supprimer-objectif-${o._id}`}
+                onClick={async () => { await api.del(`/objectifs/${o._id}`); charger(); }} />
             </div>
             <p className="sous-titre !mb-2">{o.montantEpargne.toFixed(2)} $ / {o.montantCible.toFixed(2)} $</p>
             <div className="progression-fond">
@@ -74,8 +83,11 @@ export default function Objectifs() {
               <input type="number" min="0.01" placeholder="$" className="!w-24"
                 value={versement[o._id]?.montant || ''}
                 onChange={(e) => setVersement({ ...versement, [o._id]: { ...versement[o._id], montant: e.target.value } })} />
-              <button className="btn" onClick={() => verser(o._id)}
-                disabled={!versement[o._id]?.montant || !versement[o._id]?.compte} type="button">💰</button>
+              <button className="btn flex items-center gap-1.5" onClick={() => verser(o._id)}
+                disabled={!versement[o._id]?.montant || !versement[o._id]?.compte} type="button"
+                data-testid={`verser-objectif-${o._id}`}>
+                <Coins className="w-4 h-4" /> Verser
+              </button>
             </div>
           </div>
         ))}

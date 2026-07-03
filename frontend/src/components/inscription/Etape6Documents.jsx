@@ -25,7 +25,7 @@ export default function Etape6Documents({ data, dossier, majDocuments, majConsen
           { etape: 1, titre: '👤 Personnel', valeur: `${dossier.informationsPersonnelles.civilite || ''} ${dossier.informationsPersonnelles.prenom || ''} ${dossier.informationsPersonnelles.nom || ''} — né(e) le ${dossier.informationsPersonnelles.dateNaissance || '?'}` },
           { etape: 2, titre: '📞 Coordonnées', valeur: `${dossier.coordonnees.email || '?'} • ${dossier.coordonnees.telephoneIndicatif || ''} ${dossier.coordonnees.telephoneNumero || '?'}` },
           { etape: 3, titre: '💼 Pro', valeur: `${dossier.informationsPro.statutPro || '?'} — Revenu net ${dossier.informationsPro.revenuMensuelNet || 0} $/mois` },
-          { etape: 4, titre: '🏦 Compte', valeur: `${dossier.produit.typeCompte || '?'}${dossier.produit.decouvertAutorise ? ` + découvert ${dossier.produit.plafondDecouvert}$` : ''}${dossier.produit.demandeCarte ? ` + carte ${dossier.produit.typeCarte}` : ''}` },
+          { etape: 4, titre: 'Compte', valeur: `${dossier.produit.typeCompte || '?'}${dossier.produit.decouvertAutorise ? ` + découvert ${dossier.produit.plafondDecouvert}$` : ''}${dossier.produit.demandeCarte ? ` + carte ${dossier.produit.typeCarte}` : ''}` },
           { etape: 5, titre: '🛡️ KYC', valeur: `Origine fonds : ${dossier.kyc.origineFonds || '?'} • PEP : ${dossier.kyc.personnePolitiquementExposee ? 'Oui' : 'Non'}` },
         ].map((r) => (
           <div key={r.etape} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid var(--bordure)' }}>
