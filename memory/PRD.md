@@ -106,6 +106,12 @@ vérifications post-déploiement (/api/sante, absence codeDemo, audit).
 - Push Git : à faire par l'utilisateur via « Save to GitHub » (l'agent ne fait
   pas d'actions d'écriture git).
 
+## Nettoyage (03/07/2026)
+- Tous les comptes clients de démo supprimés (users role='client' + données
+  liées : comptes, transactions, notifications, objectifs, bénéficiaires,
+  fournisseurs, demandes de prêt, otps, paiements PayPal). Admin conservé,
+  produits financiers/paramètres/journal d'audit intacts. Login admin re-vérifié.
+
 ## Backlog
 - P0 : obtenir SMTP_USER/SMTP_PASS de l'utilisateur → désactive le mode démo OTP
 - P1 : déploiement production (env cible devra fournir MySQL externe via DB_*)

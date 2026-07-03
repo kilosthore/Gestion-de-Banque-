@@ -7,6 +7,11 @@
   est retourné dans le champ `codeDemo` de la réponse POST /api/auth/login et
   loggé dans /var/log/supervisor/backend.out.log
 
+## Comptes clients de démo
+- SUPPRIMÉS le 03/07/2026 à la demande de l'utilisateur (base nettoyée,
+  seul l'admin subsiste). Pour tester en tant que client, créer un compte via
+  POST /api/auth/register (mot de passe fort ex: Test1234A).
+
 ## Base de données (MariaDB local, gérée par supervisor "mariadb")
 - DB_HOST=127.0.0.1, DB_PORT=3306, DB_NAME=banque
 - DB_USER=banque_user, DB_PASS=66b157e6e6984c8d26b4e97f98992933
