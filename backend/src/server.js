@@ -17,6 +17,24 @@ function validerJwtSecret() {
 }
 validerJwtSecret();
 
+// Garde-fous de déploiement : en production, certains réglages de démo/dev
+// sont dangereux. On refuse ou on avertit bruyamment au démarrage.
+function verifierConfigProduction() {
+  if (process.env.NODE_ENV !== 'production') return;
+  if (process.env.DEMO_OTP === 'true') {
+    // Le code applicatif l'ignore déjà en prod, mais une config incohérente
+    // signale presque toujours un .env de dev copié par erreur.
+    console.warn('⚠️  DEMO_OTP=true est ignoré en production (le code OTP ne sera jamais exposé).');
+  }
+  if (!(process.env.SMTP_USER && process.env.SMTP_PASS)) {
+    console.warn('⚠️  SMTP non configuré : les codes OTP ne pourront PAS être livrés aux clients — la connexion sera impossible. Configurez SMTP_USER / SMTP_PASS.');
+  }
+  if (!process.env.DB_PASS) {
+    console.warn('⚠️  DB_PASS vide : la base de données de production doit avoir un utilisateur dédié avec mot de passe.');
+  }
+}
+verifierConfigProduction();
+
 const app = require('./app');
 const { connectDB } = require('./config/db');
 const { demarrerPlanificateur } = require('./utils/recurrence');

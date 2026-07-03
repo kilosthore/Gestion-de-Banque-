@@ -1,4 +1,5 @@
 const express = require('express');
+require('express-async-errors'); // les erreurs des handlers async remontent au middleware d'erreurs
 const path = require('path');
 const helmet = require('helmet');
 const cors = require('cors');
@@ -8,10 +9,27 @@ const app = express();
 const isProd = process.env.NODE_ENV === 'production';
 
 /* ─── Sécurité ───────────────────────────────────────────── */
+// Derrière un reverse proxy (Render, Railway, nginx…), req.ip doit refléter
+// le client réel : indispensable pour le rate-limiting ET l'audit trail.
+if (isProd) app.set('trust proxy', 1);
+
 app.use(helmet({
-  // En prod, on sert le frontend depuis Express → certaines règles CSP par défaut
-  // bloquent les assets inline générés par Vite. On les assouplit ici.
-  contentSecurityPolicy: false,
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'"],
+      // 'unsafe-inline' requis pour les attributs style= de React/recharts ;
+      // les scripts inline restent interdits (protection XSS principale).
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", 'data:'],            // data: pour l'aperçu des chèques en base64
+      connectSrc: ["'self'"],
+      fontSrc: ["'self'", 'data:'],
+      objectSrc: ["'none'"],
+      frameAncestors: ["'none'"],
+      baseUri: ["'self'"],
+      formAction: ["'self'"],
+    },
+  },
 }));
 
 // En dev, le frontend tourne sur :5173 et nécessite CORS pour appeler :5000.

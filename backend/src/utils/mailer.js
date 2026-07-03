@@ -11,6 +11,12 @@ function smtpConfigure() {
 
 async function envoyerOtp(email, code) {
   if (!smtpConfigure()) {
+    // En production, un secret ne doit jamais finir dans les logs (souvent
+    // agrégés/partagés) : on signale l'échec sans divulguer le code.
+    if (process.env.NODE_ENV === 'production') {
+      console.error(`❌ SMTP non configuré : OTP non délivré à ${email}`);
+      return { envoye: false, demo: false };
+    }
     console.log(`📩 [MODE DÉMO] Code OTP pour ${email} : ${code}`);
     return { envoye: false, demo: true };
   }
@@ -46,6 +52,10 @@ async function envoyerOtp(email, code) {
  */
 async function envoyerMdpTemporaire(email, motDePasseTemporaire) {
   if (!smtpConfigure()) {
+    if (process.env.NODE_ENV === 'production') {
+      console.error(`❌ SMTP non configuré : mot de passe temporaire non délivré à ${email}`);
+      return { envoye: false, demo: false };
+    }
     console.log(`📩 [MODE DÉMO] Mot de passe temporaire pour ${email} : ${motDePasseTemporaire}`);
     return { envoye: false, demo: true };
   }

@@ -205,15 +205,21 @@ const DemandePret = sequelize.define('DemandePret', {
   commentaireDecision: { type: DataTypes.STRING(500), allowNull: true },
 }, { tableName: 'demandes_pret', timestamps: false });
 
-/* ─── AuditLog (traçabilité de toutes les actions sensibles) ─ */
+/* ─── AuditLog (traçabilité de toutes les actions sensibles) ─
+   Journal à intégrité vérifiable : chaque entrée porte le SHA-256 de la
+   précédente (hashPrecedent) + sa propre empreinte. Toute modification ou
+   suppression a posteriori casse la chaîne → détectable par /admin/audit. */
 const AuditLog = sequelize.define('AuditLog', {
   _id: pk,
+  seq: { type: DataTypes.BIGINT, autoIncrement: true, unique: true }, // ordre strict de la chaîne
   userId: { type: DataTypes.UUID, allowNull: true }, // null si action anonyme (ex: login échoué)
-  action: { type: DataTypes.STRING(80), allowNull: false }, // ex: 'login.success', 'virement.interne'
+  action: { type: DataTypes.STRING(80), allowNull: false }, // ex: 'auth.login', 'virement.interne'
   ipAddress: { type: DataTypes.STRING(45), allowNull: true }, // IPv6 max 45 chars
   userAgent: { type: DataTypes.STRING(500), allowNull: true },
   payload: { type: DataTypes.JSON, allowNull: true }, // contexte (sans secrets)
-  createdAt: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
+  hashPrecedent: { type: DataTypes.STRING(64), allowNull: true }, // 'GENESE' pour la 1re entrée chaînée
+  empreinte: { type: DataTypes.STRING(64), allowNull: true },     // SHA-256 de cette entrée
+  createdAt: { type: DataTypes.DATE(3), defaultValue: DataTypes.NOW }, // ms conservées (incluses dans le hash)
 }, {
   tableName: 'audit_logs',
   timestamps: false,
@@ -223,6 +229,14 @@ const AuditLog = sequelize.define('AuditLog', {
     { fields: ['createdAt'] },
   ],
 });
+
+/* ─── AuditChainState (ligne unique : dernier hash de la chaîne) ─
+   Verrouillée FOR UPDATE à chaque écriture d'audit pour sérialiser la chaîne
+   (deux écritures concurrentes ne peuvent pas référencer le même précédent). */
+const AuditChainState = sequelize.define('AuditChainState', {
+  _id: { type: DataTypes.INTEGER, primaryKey: true, defaultValue: 1 },
+  dernierHash: { type: DataTypes.STRING(64), allowNull: false, defaultValue: 'GENESE' },
+}, { tableName: 'audit_chain_state', timestamps: false });
 
 /* ─── RevokedToken (blacklist des JWT déconnectés) ──────── */
 const RevokedToken = sequelize.define('RevokedToken', {
@@ -267,5 +281,5 @@ Otp.prototype.verifier = function (code) {
 module.exports = {
   sequelize, User, Compte, Transaction, Beneficiaire, Fournisseur,
   ObjectifEpargne, Notification, ProduitFinancier, ParametresGlobaux, Otp,
-  DemandePret, AuditLog, RevokedToken,
+  DemandePret, AuditLog, AuditChainState, RevokedToken,
 };

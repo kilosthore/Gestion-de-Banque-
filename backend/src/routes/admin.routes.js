@@ -4,7 +4,7 @@ const {
   sequelize, User, Compte, Transaction, ParametresGlobaux, Notification, DemandePret,
 } = require('../models');
 const { protect, adminOnly } = require('../middleware/auth');
-const { auditLog } = require('../middleware/audit');
+const { auditLog, verifierChaine } = require('../middleware/audit');
 const { envoyerMdpTemporaire, smtpConfigure } = require('../utils/mailer');
 
 router.use(protect, adminOnly);
@@ -19,8 +19,8 @@ router.get('/stats', async (req, res) => {
   res.json({ clients, comptes, transactions });
 });
 
-/* Liste des clients */
-router.get('/clients', async (req, res) => {
+/* Liste des clients (consultation de données personnelles → auditée) */
+router.get('/clients', auditLog('admin.consultation_clients'), async (req, res) => {
   const clients = await User.findAll({ where: { role: 'client' }, order: [['nom', 'ASC']] });
   res.json({ clients });
 });
@@ -29,7 +29,7 @@ router.get('/clients', async (req, res) => {
 router.get('/parametres', async (req, res) => {
   res.json({ parametres: await ParametresGlobaux.obtenir() });
 });
-router.put('/parametres', async (req, res) => {
+router.put('/parametres', auditLog('admin.parametres_modification'), async (req, res) => {
   const params = await ParametresGlobaux.obtenir();
   const { seuilSoldeFaible, devise } = req.body;
   if (seuilSoldeFaible !== undefined) {
@@ -142,8 +142,33 @@ router.put('/prets/demandes/:id', auditLog('admin.pret_decision'), async (req, r
   }
 });
 
+/* E8 — Journal d'audit : consultation (paginée) + vérification d'intégrité.
+   La consultation du journal est elle-même auditée (qui a regardé quoi). */
+router.get('/audit', auditLog('admin.consultation_audit'), async (req, res) => {
+  const { AuditLog } = require('../models');
+  const limit = Math.min(Number(req.query.limit) || 100, 500);
+  const offset = Math.max(Number(req.query.offset) || 0, 0);
+  const where = {};
+  if (req.query.action) where.action = req.query.action;
+  if (req.query.userId) where.userId = req.query.userId;
+  const { rows, count } = await AuditLog.findAndCountAll({
+    where, order: [['seq', 'DESC']], limit, offset,
+  });
+  res.json({ total: count, entrees: rows });
+});
+
+router.get('/audit/verification', auditLog('admin.verification_audit'), async (req, res) => {
+  const rapport = await verifierChaine();
+  res.json({
+    message: rapport.valide
+      ? `Chaîne intègre : ${rapport.verifiees} entrée(s) vérifiée(s)${rapport.anciennes ? `, ${rapport.anciennes} antérieure(s) au chaînage` : ''}`
+      : `⚠️ ALTÉRATION DÉTECTÉE : ${rapport.anomalies.length} anomalie(s)`,
+    ...rapport,
+  });
+});
+
 /* US-25 — Lister les dossiers d'inscription en vérification */
-router.get('/dossiers', async (req, res) => {
+router.get('/dossiers', auditLog('admin.consultation_dossiers'), async (req, res) => {
   const dossiers = await User.findAll({
     where: { statutDossier: ['en_verification', 'rejete'] },
     order: [['dateCreation', 'ASC']],
