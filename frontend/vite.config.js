@@ -9,4 +9,12 @@ export default defineConfig({
       '/api': 'http://localhost:5000', // redirige les appels API vers le backend
     },
   },
+  preview: {
+    host: true,
+    port: 3000,
+    allowedHosts: true,
+    proxy: {
+      '/api': 'http://localhost:8001', // preview local : relaie /api vers le backend
+    },
+  },
 });

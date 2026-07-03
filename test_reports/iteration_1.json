@@ -1,0 +1,54 @@
+{
+  "summary": "Deployment-only validation of the demo banking app (Node/Express/Sequelize + MySQL backend proxied via uvicorn shim on :8001, Vite React frontend on :3000). Backend pytest suite (12 tests) executed against the external URL — all pass. Frontend Playwright e2e reached the OTP step successfully and displayed the codeDemo in the UI; final verify-otp click was rate-limited (10/15min on auth routes) because pytest had already consumed most of the budget — the flow itself is functional (proven by pytest which does the full login+verify-otp+access flow).",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Login / OTP card (Connexion.jsx)", "issues": ["No data-testid attributes on any inputs/buttons (email, password, OTP cases, submit, resend) — reduces test automation robustness. Cannot be fixed here per user's strict 'no source code changes' rule."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests_pytest/test_backend.py",
+    "/app/backend/tests_pytest/conftest.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Rate limiting on /api/auth/* is aggressive (10 req / 15 min per IP). This makes end-to-end UI testing after a pytest suite fragile — consider a higher threshold or environment-specific limits for the demo/preview environment.",
+    "Frontend Connexion.jsx has zero data-testid attributes. Add them for reliable automation. Currently reachable only via role/text selectors.",
+    "codeDemo is intentionally returned by the API and displayed in the UI in demo mode (SMTP absent) — this is expected per the app's own logic (demoActif = DEMO_OTP==='true' || !smtpConfigure()). Not a security issue for a demo build but should be off in prod (ensure SMTP is configured in production)."
+  ],
+  "updated_files": [
+    "/app/backend/tests_pytest/conftest.py (new)",
+    "/app/backend/tests_pytest/test_backend.py (new)"
+  ],
+  "success_rate": {"backend": "100% (12/12)", "frontend": "~90% — home + SPA route + login form + OTP step verified in UI; final verify-otp click rate-limited during test but the flow is proven working end-to-end via API"},
+  "test_credentials": "Admin: admin@banque.com / Admin1234 — OTP retrieved via codeDemo field in login response (demo mode)",
+  "seed_data_creation": "Created 1 test client user per pytest run via /api/auth/register (email test_<uuid>@example.com / Test1234A). Registration also auto-provisions a 'cheque' account with 500$ initial balance (verified).",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Auth routes are rate-limited to 10 req / 15min per IP (limiteurAuth). Group login/register calls carefully. codeDemo is present in login response by design (SMTP not configured). External URL: https://c508c04c-e648-487d-9ad6-beb1ef8a7ccb.preview.emergentagent.com. Run: `pytest /app/backend/tests_pytest/ -v --junitxml=/app/test_reports/pytest/pytest_results.xml`. Do NOT modify frontend/src or backend/src per user's strict rule.",
+  "verified_features": [
+    "GET /api/sante -> {statut:'OK'} ✅",
+    "POST /api/auth/login (admin) -> tempToken + codeDemo ✅",
+    "POST /api/auth/verify-otp -> final JWT with role=admin ✅",
+    "GET /api/admin/stats without token -> 401 ✅",
+    "GET /api/admin/stats with admin token -> 200 ✅",
+    "GET /api/auth/me with admin token -> user.role=admin ✅",
+    "POST /api/auth/register with strong password (Test1234A) -> 201 + user created ✅",
+    "POST /api/auth/register with weak password -> 400 ✅",
+    "POST /api/auth/register with duplicate email -> 409 ✅",
+    "Client login + GET /api/comptes -> cheque account with 500$ balance ✅",
+    "POST /api/auth/login with wrong password -> 401 ✅",
+    "GET /api/comptes without token -> 401 ✅",
+    "Frontend home page (BIENVENUE) loads correctly ✅",
+    "SPA route /connexion loads without 404, assets OK ✅",
+    "Login form (email/password) accepts input and progresses to OTP step ✅",
+    "OTP step displays codeDemo in the UI (visible '🧪 Mode démo — votre code : 2 7 6 6 3 3') ✅"
+  ]
+}
