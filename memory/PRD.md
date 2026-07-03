@@ -32,6 +32,25 @@ vérifications post-déploiement (/api/sante, absence codeDemo, audit).
 - [x] Vérifs : /api/sante OK, login admin+OTP+JWT OK, /api/admin/stats OK
 - [x] Tests : backend 12/12 pass, frontend e2e flow login validé (iteration_1.json)
 
+## Intégration PayPal Sandbox (03/07/2026) — ADDITIVE, code existant intact
+- Usages : dépôt sur compte client + souscription produit financier (crédité sur
+  compte 'investissement', créé au besoin). Devise CAD, plafond 10 000 $.
+- Nouveaux fichiers : backend/src/routes/paypal.routes.js, utils/paypal.js
+  (REST PayPal via fetch natif, zéro dépendance), models/PaiementPaypal.js
+  (table paiements_paypal, sync auto) ; frontend/src/pages/PaiementPaypal.jsx
+  (@paypal/react-paypal-js).
+- Lignes ajoutées : montage /api/paypal dans app.js (AVANT divers.routes qui
+  applique protect sur tout /api), route /paypal + import dans App.jsx, lien
+  sidebar dans Layout.jsx. Clés dans backend/.env (PAYPAL_CLIENT_ID/SECRET,
+  PAYPAL_BASE_URL sandbox, PAYPAL_CURRENCY=CAD).
+- Endpoints : GET /api/paypal/config (public), POST /api/paypal/orders,
+  POST /api/paypal/orders/:orderId/capture (idempotent, LOCK.UPDATE, audit),
+  GET /api/paypal/historique.
+- Validé contre le VRAI sandbox : capture complète testée via
+  confirm-payment-source + carte test 4111111111111111 (dépôt 500→525,50 $ ;
+  produit → compte investissement crédité 100 $). Tests agent : 18/18 backend,
+  UI 100 % (iteration_2.json).
+
 ## Écarts constatés entre la description utilisateur et le code réel (code NON modifié)
 1. **codeDemo présent dans la réponse login** : le code applicatif force le mode
    démo si SMTP absent (`demoActif = DEMO_OTP==='true' || !smtpConfigure()`).

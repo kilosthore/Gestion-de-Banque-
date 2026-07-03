@@ -16,3 +16,10 @@
 - /app/backend/server.py = shim proxy ASGI (uvicorn:8001 → node:5050), requis car
   la config supervisor est readonly et impose uvicorn sur 8001
 - Frontend: build Vite servi par `vite preview` sur port 3000 (script "start")
+
+## PayPal Sandbox
+- Clés dans backend/.env (PAYPAL_CLIENT_ID / PAYPAL_CLIENT_SECRET), devise CAD
+- Page client : /paypal (lien sidebar). Endpoints : /api/paypal/config, /orders,
+  /orders/:id/capture, /historique
+- Test capture sans acheteur : approuver l'ordre via API PayPal
+  confirm-payment-source avec carte 4111111111111111 exp 2030-12, puis capturer
