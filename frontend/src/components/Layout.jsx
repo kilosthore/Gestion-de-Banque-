@@ -31,6 +31,7 @@ export default function Layout({ children }) {
         ['/objectifs', '🎯', 'Épargne'],
         ['/prets', '💰', 'Prêts'],
         ['/produits', '📈', 'Produits'],
+        ['/paypal', '🅿️', 'PayPal'],
         ['/notifications', '🔔', 'Notifications'],
         ['/profil', '👤', 'Mon profil'],
       ];

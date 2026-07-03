@@ -14,6 +14,7 @@ import Produits from './pages/Produits';
 import Notifications from './pages/Notifications';
 import Prets from './pages/Prets';
 import Profil from './pages/Profil';
+import PaiementPaypal from './pages/PaiementPaypal';
 import Admin from './pages/Admin';
 import Bienvenue from './pages/Bienvenue';
 import HeroBanque from './components/HeroBanque';
@@ -47,6 +48,7 @@ export default function App() {
       <Route path="/produits" element={<Prive><Produits /></Prive>} />
       <Route path="/notifications" element={<Prive><Notifications /></Prive>} />
       <Route path="/prets" element={<Prive><Prets /></Prive>} />
+      <Route path="/paypal" element={<Prive><PaiementPaypal /></Prive>} />
       <Route path="/profil" element={<Prive><Profil /></Prive>} />
       <Route path="/admin" element={<Prive adminSeul><Admin /></Prive>} />
       <Route path="*" element={<Navigate to="/" replace />} />

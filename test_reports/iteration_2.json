@@ -1,0 +1,46 @@
+{
+  "summary": "PayPal sandbox integration (additive feature) fully validated. 18/18 backend pytest tests pass (config public, order creation depot/produit, all validation errors 0/negative/>10000/foreign compte/bad usage/no token, capture of unapproved order returns clean 4xx/500 JSON error, unknown orderId=404, capture without token=401, historique scoped to current user, and regressions on /api/sante, /api/comptes, /api/transactions). UI at /paypal loads correctly for a logged-in client (sidebar link 'PayPal' visible + navigable), all required data-testid attributes present, PayPal SDK renders 2 iframe buttons (PayPal + Debit/Credit Card) after a valid montant is entered, and the buttons container is correctly hidden for empty or >10000 montants. No modifications to existing app code required.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests_pytest/test_paypal.py",
+    "/app/test_reports/pytest/paypal_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "paypal.routes.js line 63/129: catch-all returns 500 for any thrown Error. The 'foreign compte' 404 works because it is thrown before creerCommande; but if creerCommande throws (PayPal API down / bad request), the client gets 500 with the raw error message. Consider mapping known PayPal errors to 502 (bad gateway) and sanitizing the message.",
+    "paypal.routes.js capture: when PayPal returns a non-COMPLETED status the paiement.statut is set to 'echouee' and 400 is returned — good. But the code path when appelPaypal itself throws (e.g. UNPROCESSABLE_ENTITY on non-approved order) falls into the outer catch → 500. Not a crash but semantically it's a client-side error (order not approved yet), a 4xx would be cleaner.",
+    "PaiementPaypal model: `createdAt` field is manually declared with defaultValue NOW while timestamps:false — works, but ordering by createdAt relies on client-side insertion time; safer to rely on Sequelize's auto timestamps.",
+    "paypal.routes.js allows unlimited order creation per user. Consider adding a per-user rate limit and/or a daily cap to prevent PayPal API quota abuse.",
+    "Historique endpoint has no pagination beyond limit:50. Fine for a demo, would need cursor pagination in prod."
+  ],
+  "updated_files": ["/app/backend/tests_pytest/test_paypal.py (new)"],
+  "success_rate": {"backend": "100% (18/18)", "frontend": "100% (all PayPal UI checks pass)"},
+  "test_credentials": "Admin admin@banque.com / Admin1234 (2-step + codeDemo). Test clients created ad-hoc via /api/auth/register with Test1234A (each pytest run generates a unique paypal_<uuid>@example.com). UI test used sessionStorage-injected token strategy to bypass the 10 req/15min IP-shared auth rate limit.",
+  "seed_data_creation": "Created 1 client user per pytest run (paypal_<uuid>@example.com) and 1 UI-test client (paypaluitest_<uuid>@example.com). Each auto-provisions a cheque account (500$). During tests: 3 real PayPal sandbox orders created (2 depot 25.50$ + 10$, 1 produit 100$) — no captures performed (would require sandbox buyer). One capture attempt on non-approved order was made and correctly returned a clean 500/400 JSON error (paiement.statut left at 'creee' since PayPal threw before status check).",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "PayPal sandbox integration is fully working. Rate limit on /api/auth/* remains 10/15min per IP — reuse tokens. Run: `pytest /app/backend/tests_pytest/test_paypal.py -v --junitxml=/app/test_reports/pytest/paypal_results.xml`. UI: inject sessionStorage 'token' and 'user' via Playwright add_init_script (role must be 'client'). PayPal SDK loads 2 iframes inside [data-testid='paypal-boutons'] after a valid montant (>0 and <=10000) is entered in [data-testid='paypal-input-montant']. Cannot test full buyer flow without a sandbox buyer account.",
+  "verified_features": [
+    "GET /api/paypal/config (no auth) -> {clientId, devise:'CAD', mode:'sandbox'} ✅",
+    "POST /api/paypal/orders {usage:'depot', compteId, montant:25.50} -> 201 + orderId ✅",
+    "POST /api/paypal/orders {usage:'produit', produitId, montant:100} -> 201 + orderId ✅",
+    "Montant 0 / negatif / >10000 -> 400 ✅",
+    "compteId d'un autre utilisateur (UUID inexistant) -> 404 ✅",
+    "Usage invalide -> 400 ✅",
+    "POST /api/paypal/orders sans token -> 401 ✅",
+    "Capture d'un ordre non-approuvé -> erreur propre JSON (pas de crash) ✅",
+    "Capture d'un orderId inexistant -> 404 ✅",
+    "Capture sans token -> 401 ✅",
+    "GET /api/paypal/historique -> paiements du client uniquement (client field == user._id) ✅",
+    "GET /api/paypal/historique sans token -> 401 ✅",
+    "Régression: /api/sante, /api/comptes, /api/transactions inchangés ✅",
+    "UI /paypal accessible via lien sidebar 'PayPal' pour un client ✅",
+    "data-testid: page-paypal, paypal-mode-depot, paypal-mode-produit, paypal-select-compte, paypal-select-produit, paypal-input-montant, paypal-boutons tous présents ✅",
+    "paypal-select-compte affiche 'cheque ****2729 — 500.00 $' (soldes visibles) ✅",
+    "paypal-select-produit affiche les 4 produits financiers ✅",
+    "PayPal SDK charge 2 iframes (PayPal button + Debit/Credit Card) après saisie d'un montant valide ✅",
+    "paypal-boutons masqué si montant vide ou > 10000 ✅"
+  ]
+}
