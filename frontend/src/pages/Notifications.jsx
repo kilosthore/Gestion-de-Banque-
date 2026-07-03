@@ -19,7 +19,7 @@ export default function Notifications() {
             Notifications
             <IconeFlottante icon={Bell} className="text-primaire-600 dark:text-primaire-400" />
           </h1>
-          <p className="sous-titre">Alertes de solde faible et messages importants (US-20)</p>
+          <p className="sous-titre">Alertes de solde faible et messages importants</p>
         </div>
         {notifications.some((n) => !n.lue) && (
           <button className="btn btn-secondaire" onClick={toutLire}>Tout marquer lu ✔</button>

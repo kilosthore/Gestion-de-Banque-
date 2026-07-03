@@ -41,7 +41,7 @@ const DockIconButton = React.forwardRef<HTMLButtonElement, DockIconButtonProps>(
         whileHover={{ scale: 1.1, y: -2 }}
         whileTap={{ scale: 0.95 }}
         onClick={onClick}
-        data-testid={`dock-${label.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
+        data-testid={`dock-${label.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-')}`}
         className={cn(
           "relative group p-3 rounded-lg",
           "hover:bg-secondary transition-colors",

@@ -66,7 +66,7 @@ export default function Contacts() {
           <form className="carte" onSubmit={ajouterB}>
             <h2 className="flex items-center gap-2">
               {edition ? <Pencil className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
-              {edition ? 'Modifier' : 'Ajouter'} un bénéficiaire (US-08)
+              {edition ? 'Modifier' : 'Ajouter'} un bénéficiaire
             </h2>
             <label>Nom</label>
             <input value={fb.nom} onChange={(e) => setFb({ ...fb, nom: e.target.value })} required />
@@ -97,7 +97,7 @@ export default function Contacts() {
       ) : (
         <div className="grille grille-2">
           <form className="carte" onSubmit={ajouterF}>
-            <h2 className="flex items-center gap-2"><Plus className="w-5 h-5" /> Nouveau fournisseur (US-10)</h2>
+            <h2 className="flex items-center gap-2"><Plus className="w-5 h-5" /> Nouveau fournisseur</h2>
             <label>Nom</label>
             <input value={ff.nom} onChange={(e) => setFf({ ...ff, nom: e.target.value })} required />
             <label>Catégorie</label>

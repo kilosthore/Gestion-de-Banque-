@@ -56,7 +56,7 @@ export default function DetailCompte() {
 
       {estCarte && (
         <div className="carte max-w-md mb-4">
-          <h2>💸 Payer ma carte (US-18)</h2>
+          <h2>💸 Payer ma carte</h2>
           <label>Depuis le compte</label>
           <select value={source} onChange={(e) => setSource(e.target.value)}>
             <option value="">— choisir —</option>

@@ -105,7 +105,7 @@ export default function Admin() {
       <div className="grille grille-2">
         {parametres && (
           <form className="carte" onSubmit={enregistrerParams}>
-            <h2>⚙️ Paramètres globaux (US-21)</h2>
+            <h2>⚙️ Paramètres globaux</h2>
             <label>Seuil de solde faible ($)</label>
             <input type="number" min="0" value={parametres.seuilSoldeFaible}
               onChange={(e) => setParametres({ ...parametres, seuilSoldeFaible: e.target.value })} />
@@ -120,7 +120,7 @@ export default function Admin() {
         )}
 
         <div className="carte">
-          <h2>📋 Dossiers d'inscription (US-25)</h2>
+          <h2>📋 Dossiers d'inscription</h2>
           {dossiers.length === 0 && <p className="sous-titre">Aucun dossier en attente.</p>}
           {dossiers.map((d) => {
             const di = d.donneesInscription || {};
@@ -166,7 +166,7 @@ export default function Admin() {
         </div>
 
         <div className="carte">
-          <h2>💰 Demandes de prêt (US-24)</h2>
+          <h2>💰 Demandes de prêt</h2>
           {demandesPret.length === 0 && <p className="sous-titre">Aucune demande pour l'instant.</p>}
           {demandesPret.map((d) => (
             <div key={d._id} className="py-3 border-t border-primaire-200 dark:border-sombre-bordure">
@@ -211,7 +211,7 @@ export default function Admin() {
         </div>
 
         <div className="carte">
-          <h2>👥 Clients (US-22)</h2>
+          <h2>👥 Clients</h2>
           {clients.length === 0 && <p className="sous-titre">Aucun client inscrit.</p>}
           {clients.map((c) => (
             <div key={c._id} className="flex justify-between items-center py-2.5 border-t border-primaire-200 dark:border-sombre-bordure">

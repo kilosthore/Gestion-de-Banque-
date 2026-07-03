@@ -15,6 +15,7 @@ import Notifications from './pages/Notifications';
 import Prets from './pages/Prets';
 import Profil from './pages/Profil';
 import PaiementPaypal from './pages/PaiementPaypal';
+import Calendrier from './pages/Calendrier';
 import Admin from './pages/Admin';
 import Bienvenue from './pages/Bienvenue';
 import HeroBanque from './components/HeroBanque';
@@ -43,6 +44,7 @@ export default function App() {
       <Route path="/comptes/:id" element={<Prive><DetailCompte /></Prive>} />
       <Route path="/operations" element={<Prive><Operations /></Prive>} />
       <Route path="/historique" element={<Prive><Historique /></Prive>} />
+      <Route path="/calendrier" element={<Prive><Calendrier /></Prive>} />
       <Route path="/contacts" element={<Prive><Contacts /></Prive>} />
       <Route path="/objectifs" element={<Prive><Objectifs /></Prive>} />
       <Route path="/produits" element={<Prive><Produits /></Prive>} />

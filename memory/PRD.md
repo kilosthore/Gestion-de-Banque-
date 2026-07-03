@@ -89,6 +89,23 @@ vérifications post-déploiement (/api/sante, absence codeDemo, audit).
   dashboard) — replace_all n'avait matché qu'une occurrence sur deux.
 - Vérifié par screenshots : 6 pages client + dashboard rendent sans erreur JS.
 
+## Itération UI v3 (03/07/2026) — calendrier, transitions, nettoyage US
+- Nouvelle page /calendrier (lien sidebar + dock, icône CalendarDays) : grille
+  mensuelle avec projection des occurrences des transactions récurrentes
+  (hebdo/mensuelle depuis prochaineDate, GET /api/transactions/planifiees),
+  jour courant surligné, navigation mois préc/suiv, liste « Prochaines
+  échéances » avec annulation (DELETE /api/transactions/planifiees/:id),
+  bouton « Planifier une opération » → /operations.
+- Transitions de page animées : motion.main (fade + slide-up 0.3s) dans
+  Layout.jsx, keyed sur location.pathname.
+- Toutes les mentions visibles « (US-xx) » supprimées du frontend (9 fichiers,
+  regex, vérifié 0 restante dans l'UI). Backend intact.
+- Bug corrigé : useEffect(charger, []) retournait une Promise (cleanup invalide
+  → crash à la navigation). Toujours utiliser useEffect(() => { charger(); }, []).
+- data-testid du dock normalisés (accents retirés : dock-operations).
+- Push Git : à faire par l'utilisateur via « Save to GitHub » (l'agent ne fait
+  pas d'actions d'écriture git).
+
 ## Backlog
 - P0 : obtenir SMTP_USER/SMTP_PASS de l'utilisateur → désactive le mode démo OTP
 - P1 : déploiement production (env cible devra fournir MySQL externe via DB_*)

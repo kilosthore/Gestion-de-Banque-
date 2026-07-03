@@ -43,7 +43,7 @@ export default function Objectifs() {
         Objectifs d'épargne
         <IconeFlottante icon={Target} className="text-primaire-600 dark:text-primaire-400" />
       </h1>
-      <p className="sous-titre">Définissez vos objectifs et suivez votre progression (US-19)</p>
+      <p className="sous-titre">Définissez vos objectifs et suivez votre progression</p>
       {message && <div className={`alerte alerte-${message.type}`}>{message.texte}</div>}
 
       <div className="grille grille-2">

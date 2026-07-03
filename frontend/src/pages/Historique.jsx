@@ -115,7 +115,7 @@ export default function Historique() {
 
           {releve && (
             <div className="carte">
-              <h2>Relevé — {nomsMois[periode.mois - 1]} {periode.annee} (US-15)</h2>
+              <h2>Relevé — {nomsMois[periode.mois - 1]} {periode.annee}</h2>
               <div className="grille grille-3 my-4">
                 <div className="carte !p-4 text-center">
                   <p className="sous-titre !mb-1">Entrées</p>

@@ -1,8 +1,9 @@
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 import {
   Home, CreditCard, ArrowLeftRight, History, Users, PiggyBank, Coins,
-  TrendingUp, Bell, User, Wrench, Wallet, Moon, Sun, LogOut,
+  TrendingUp, Bell, User, Wrench, Wallet, Moon, Sun, LogOut, CalendarDays,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../api/client';
@@ -33,6 +34,7 @@ export default function Layout({ children }) {
         ['/comptes', CreditCard, 'Mes comptes'],
         ['/operations', ArrowLeftRight, 'Opérations'],
         ['/historique', History, 'Historique'],
+        ['/calendrier', CalendarDays, 'Calendrier'],
         ['/contacts', Users, 'Bénéficiaires'],
         ['/objectifs', PiggyBank, 'Épargne'],
         ['/prets', Coins, 'Prêts'],
@@ -52,6 +54,7 @@ export default function Layout({ children }) {
         { icon: CreditCard, label: 'Mes comptes', onClick: () => navigate('/comptes') },
         { icon: ArrowLeftRight, label: 'Opérations', onClick: () => navigate('/operations') },
         { icon: History, label: 'Historique', onClick: () => navigate('/historique') },
+        { icon: CalendarDays, label: 'Calendrier', onClick: () => navigate('/calendrier') },
         { icon: Wallet, label: 'PayPal', onClick: () => navigate('/paypal') },
         { icon: Bell, label: 'Notifications', onClick: () => navigate('/notifications'), badge: nonLues },
         { icon: User, label: 'Mon profil', onClick: () => navigate('/profil') },
@@ -83,7 +86,15 @@ export default function Layout({ children }) {
           </button>
         </div>
       </aside>
-      <main className="contenu pb-28">{children}</main>
+      <motion.main
+        key={location.pathname}
+        className="contenu pb-28"
+        initial={{ opacity: 0, y: 14 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, ease: 'easeOut' }}
+      >
+        {children}
+      </motion.main>
       <div className="fixed bottom-2 left-0 right-0 z-40 pointer-events-none">
         <Dock items={itemsDock} />
       </div>

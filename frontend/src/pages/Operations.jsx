@@ -128,7 +128,7 @@ export default function Operations() {
       <form onSubmit={soumettre} className="carte max-w-lg">
         {onglet === 'depot' && (
           <>
-            <h2 className="flex items-center gap-2"><Banknote className="w-5 h-5" /> Dépôt ou retrait (US-11)</h2>
+            <h2 className="flex items-center gap-2"><Banknote className="w-5 h-5" /> Dépôt ou retrait</h2>
             <label>Opération</label>
             <select value={f.type} onChange={maj('type')}>
               <option value="depot">Dépôt</option>
@@ -139,14 +139,14 @@ export default function Operations() {
         )}
         {onglet === 'interne' && (
           <>
-            <h2 className="flex items-center gap-2"><Repeat className="w-5 h-5" /> Virement entre mes comptes (US-06)</h2>
+            <h2 className="flex items-center gap-2"><Repeat className="w-5 h-5" /> Virement entre mes comptes</h2>
             <ChoixCompte libelle="Compte source" />
             <ChoixCompte libelle="Compte destination" champ="compteDestId" exclure={f.compteId} />
           </>
         )}
         {onglet === 'interac' && (
           <>
-            <h2 className="flex items-center gap-2"><Zap className="w-5 h-5" /> Virement Interac (US-07)</h2>
+            <h2 className="flex items-center gap-2"><Zap className="w-5 h-5" /> Virement Interac</h2>
             <ChoixCompte libelle="Compte source" />
             <label>Bénéficiaire</label>
             <select value={f.beneficiaireId || ''} onChange={maj('beneficiaireId')} required>
@@ -158,7 +158,7 @@ export default function Operations() {
         )}
         {onglet === 'facture' && (
           <>
-            <h2 className="flex items-center gap-2"><Receipt className="w-5 h-5" /> Payer une facture (US-09)</h2>
+            <h2 className="flex items-center gap-2"><Receipt className="w-5 h-5" /> Payer une facture</h2>
             <ChoixCompte libelle="Compte source" />
             <label>Fournisseur</label>
             <select value={f.fournisseurId || ''} onChange={maj('fournisseurId')} required>
@@ -169,7 +169,7 @@ export default function Operations() {
         )}
         {onglet === 'cheque' && (
           <>
-            <h2 className="flex items-center gap-2"><Camera className="w-5 h-5" /> Déposer un chèque par photo (US-12)</h2>
+            <h2 className="flex items-center gap-2"><Camera className="w-5 h-5" /> Déposer un chèque par photo</h2>
             <ChoixCompte />
             <label>Photo du chèque</label>
             <input type="file" accept="image/*" onChange={lireImage} required className="!p-2" />
@@ -178,7 +178,7 @@ export default function Operations() {
         )}
         {onglet === 'recurrente' && (
           <>
-            <h2 className="flex items-center gap-2"><RotateCw className="w-5 h-5" /> Transaction récurrente (US-17)</h2>
+            <h2 className="flex items-center gap-2"><RotateCw className="w-5 h-5" /> Transaction récurrente</h2>
             <ChoixCompte libelle="Compte source" />
             <label>Fournisseur (optionnel)</label>
             <select value={f.fournisseurId || ''} onChange={maj('fournisseurId')}>

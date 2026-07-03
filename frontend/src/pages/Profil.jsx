@@ -27,7 +27,7 @@ export default function Profil() {
         Mon profil
         <IconeFlottante icon={User} className="text-primaire-600 dark:text-primaire-400" />
       </h1>
-      <p className="sous-titre">Vos informations personnelles (US-01, US-03)</p>
+      <p className="sous-titre">Vos informations personnelles</p>
       {message && <div className={`alerte alerte-${message.type}`}>{message.texte}</div>}
 
       <div className="grille grille-2">

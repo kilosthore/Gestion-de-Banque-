@@ -48,7 +48,7 @@ export default function Prets() {
         Demandes de prêt
         <IconeFlottante icon={Coins} className="text-primaire-600 dark:text-primaire-400" />
       </h1>
-      <p className="sous-titre">Soumettez une demande de prêt et suivez son statut (US-24)</p>
+      <p className="sous-titre">Soumettez une demande de prêt et suivez son statut</p>
       {message && <div className={`alerte alerte-${message.type}`}>{message.texte}</div>}
 
       <div className="grille grille-2">
