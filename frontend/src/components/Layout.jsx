@@ -84,7 +84,7 @@ export default function Layout({ children }) {
         </div>
       </aside>
       <main className="contenu pb-28">{children}</main>
-      <div className="fixed bottom-2 left-0 right-0 z-40">
+      <div className="fixed bottom-2 left-0 right-0 z-40 pointer-events-none">
         <Dock items={itemsDock} />
       </div>
     </div>

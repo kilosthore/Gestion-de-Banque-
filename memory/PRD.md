@@ -60,6 +60,22 @@ vérifications post-déploiement (/api/sante, absence codeDemo, audit).
 3. **GET /api/admin/audit/verification n'existe pas** (404). Le middleware
    audit.js est un journal simple (pas de chaîne SHA-256 ni FOR UPDATE).
 
+## Itération UI — Dock animé, popovers, icônes lucide (03/07/2026)
+- Composants shadcn-style dans frontend/src/components/ui/ (.tsx compilés
+  nativement par Vite, alias @ → src, cn dans src/lib/utils.js) :
+  dock-two.tsx (dock flottant framer-motion), popover-profil.tsx +
+  popover-info.tsx (@ark-ui/react), icone-action.tsx (IconeAction animée
+  hover/tap + infobulle, IconeFlottante flottement continu).
+- Intégrations : Layout.jsx (sidebar avec icônes lucide, avatar popover profil,
+  Dock fixed bottom avec pointer-events-none sur wrapper — IMPORTANT, sinon
+  bloque les clics sidebar), Admin.jsx (boutons approbation/rejet/réinit
+  en IconeAction, stats avec IconeFlottante, badges lucide), Profil.jsx
+  (PopoverInfo sécurité, titre animé).
+- Config : tailwind content +ts,tsx ; tokens secondary/popover ; keyframes
+  fade-in/out. Deps : framer-motion, @ark-ui/react. Thème jaune-orange intact.
+- Tests : iteration_3 (7/8 puis bug pointer-events corrigé et vérifié par
+  clic souris réel : toggle thème OK, dock nav OK, approbation prêt e2e OK).
+
 ## Backlog
 - P0 : obtenir SMTP_USER/SMTP_PASS de l'utilisateur → désactive le mode démo OTP
 - P1 : déploiement production (env cible devra fournir MySQL externe via DB_*)
