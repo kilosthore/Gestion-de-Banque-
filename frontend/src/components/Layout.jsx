@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   Home, CreditCard, ArrowLeftRight, History, Users, PiggyBank, Coins,
-  TrendingUp, Bell, User, Wrench, Wallet, Moon, Sun, LogOut, CalendarDays, Landmark,
+  TrendingUp, Bell, User, Wrench, Wallet, Moon, Sun, LogOut, CalendarDays, Landmark, PieChart,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { entreeCascade } from '../lib/animations';
@@ -23,18 +23,25 @@ export default function Layout({ children }) {
     return () => cancelAnimationFrame(id);
   }, [location.pathname]);
 
+  // Alertes quasi temps réel : admins compris (alertes fraude/verrouillage),
+  // rafraîchies toutes les 30 s sans bloquer la navigation.
   useEffect(() => {
-    if (user?.role !== 'client') return;
-    api.get('/notifications')
-      .then((d) => setNonLues(d.notifications.filter((n) => !n.lue).length))
-      .catch(() => {});
-  }, [user]);
+    if (!user) return;
+    const rafraichir = () =>
+      api.get('/notifications')
+        .then((d) => setNonLues(d.notifications.filter((n) => !n.lue).length))
+        .catch(() => {});
+    rafraichir();
+    const intervalle = setInterval(rafraichir, 30000);
+    return () => clearInterval(intervalle);
+  }, [user, location.pathname]);
 
   const sortir = () => { deconnecter(); navigate('/connexion'); };
 
   const liens = user?.role === 'admin'
     ? [
         ['/admin', Wrench, 'Administration'],
+        ['/notifications', Bell, 'Notifications'], // alertes fraude + verrouillages
         ['/profil', User, 'Mon profil'],
       ]
     : [
@@ -45,6 +52,7 @@ export default function Layout({ children }) {
         ['/calendrier', CalendarDays, 'Calendrier'],
         ['/contacts', Users, 'Bénéficiaires'],
         ['/objectifs', PiggyBank, 'Épargne'],
+        ['/budgets', PieChart, 'Budgets'],
         ['/prets', Coins, 'Prêts'],
         ['/produits', TrendingUp, 'Produits'],
         ['/paypal', Wallet, 'PayPal'],
@@ -55,6 +63,7 @@ export default function Layout({ children }) {
   const itemsDock = user?.role === 'admin'
     ? [
         { icon: Wrench, label: 'Administration', onClick: () => navigate('/admin') },
+        { icon: Bell, label: 'Notifications', onClick: () => navigate('/notifications'), badge: nonLues },
         { icon: User, label: 'Mon profil', onClick: () => navigate('/profil') },
       ]
     : [
@@ -63,6 +72,7 @@ export default function Layout({ children }) {
         { icon: ArrowLeftRight, label: 'Opérations', onClick: () => navigate('/operations') },
         { icon: History, label: 'Historique', onClick: () => navigate('/historique') },
         { icon: CalendarDays, label: 'Calendrier', onClick: () => navigate('/calendrier') },
+        { icon: PieChart, label: 'Budgets', onClick: () => navigate('/budgets') },
         { icon: Wallet, label: 'PayPal', onClick: () => navigate('/paypal') },
         { icon: Bell, label: 'Notifications', onClick: () => navigate('/notifications'), badge: nonLues },
         { icon: User, label: 'Mon profil', onClick: () => navigate('/profil') },

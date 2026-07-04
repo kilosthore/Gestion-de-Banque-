@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { User, ShieldCheck, Pencil } from 'lucide-react';
+import { User, ShieldCheck, Pencil, KeyRound, AlertTriangle } from 'lucide-react';
 import { api } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { IconeFlottante } from '../components/ui/icone-action';
@@ -9,6 +9,7 @@ import { PopoverInfo } from '../components/ui/popover-info';
 export default function Profil() {
   const { user, rafraichirUser } = useAuth();
   const [f, setF] = useState({ nom: user.nom, prenom: user.prenom || '' });
+  const [mdp, setMdp] = useState({ ancienMotDePasse: '', nouveauMotDePasse: '', confirmation: '' });
   const [message, setMessage] = useState(null);
 
   const enregistrer = async (e) => {
@@ -21,6 +22,23 @@ export default function Profil() {
     } catch (err) { setMessage({ type: 'erreur', texte: err.message }); }
   };
 
+  const changerMotDePasse = async (e) => {
+    e.preventDefault();
+    setMessage(null);
+    if (mdp.nouveauMotDePasse !== mdp.confirmation) {
+      return setMessage({ type: 'erreur', texte: 'La confirmation ne correspond pas au nouveau mot de passe.' });
+    }
+    try {
+      const d = await api.post('/auth/changer-mot-de-passe', {
+        ancienMotDePasse: mdp.ancienMotDePasse,
+        nouveauMotDePasse: mdp.nouveauMotDePasse,
+      });
+      setMdp({ ancienMotDePasse: '', nouveauMotDePasse: '', confirmation: '' });
+      await rafraichirUser();
+      setMessage({ type: 'succes', texte: d.message });
+    } catch (err) { setMessage({ type: 'erreur', texte: err.message }); }
+  };
+
   return (
     <div>
       <h1 className="flex items-center gap-2.5">
@@ -28,6 +46,13 @@ export default function Profil() {
         <IconeFlottante icon={User} className="text-primaire-600 dark:text-primaire-400" />
       </h1>
       <p className="sous-titre">Vos informations personnelles</p>
+      {user.doitChangerMotDePasse && (
+        <div className="alerte alerte-erreur flex items-center gap-2">
+          <AlertTriangle className="w-5 h-5 shrink-0" />
+          Vous êtes connecté avec un code temporaire : choisissez un nouveau mot de passe
+          ci-dessous avant de continuer.
+        </div>
+      )}
       {message && <div className={`alerte alerte-${message.type}`}>{message.texte}</div>}
 
       <div className="grille grille-2">
@@ -51,6 +76,36 @@ export default function Profil() {
           <button className="btn w-full mt-4">Enregistrer ✔</button>
         </form>
       </div>
+
+      <form className="carte mt-4" onSubmit={changerMotDePasse}>
+        <h2 className="flex items-center gap-2">
+          <KeyRound className="w-5 h-5 text-primaire-600 dark:text-primaire-400" /> Changer mon mot de passe
+        </h2>
+        <div className="grille grille-3">
+          <div>
+            <label htmlFor="mdp-actuel">Mot de passe actuel (ou code temporaire)</label>
+            <input id="mdp-actuel" type="password" required autoComplete="current-password"
+              value={mdp.ancienMotDePasse}
+              onChange={(e) => setMdp({ ...mdp, ancienMotDePasse: e.target.value })} />
+          </div>
+          <div>
+            <label htmlFor="mdp-nouveau">Nouveau mot de passe</label>
+            <input id="mdp-nouveau" type="password" required autoComplete="new-password"
+              minLength={8} value={mdp.nouveauMotDePasse}
+              onChange={(e) => setMdp({ ...mdp, nouveauMotDePasse: e.target.value })} />
+          </div>
+          <div>
+            <label htmlFor="mdp-confirmation">Confirmation</label>
+            <input id="mdp-confirmation" type="password" required autoComplete="new-password"
+              minLength={8} value={mdp.confirmation}
+              onChange={(e) => setMdp({ ...mdp, confirmation: e.target.value })} />
+          </div>
+        </div>
+        <p className="sous-titre !mb-2 mt-2 text-sm">
+          8 caractères minimum, avec majuscule, minuscule et chiffre.
+        </p>
+        <button className="btn">Mettre à jour le mot de passe</button>
+      </form>
 
       <div className="carte mt-4">
         <h2 className="flex items-center gap-2">

@@ -10,6 +10,7 @@ import Operations from './pages/Operations';
 import Historique from './pages/Historique';
 import Contacts from './pages/Contacts';
 import Objectifs from './pages/Objectifs';
+import Budgets from './pages/Budgets';
 import Produits from './pages/Produits';
 import Notifications from './pages/Notifications';
 import Prets from './pages/Prets';
@@ -47,6 +48,7 @@ export default function App() {
       <Route path="/calendrier" element={<Prive><Calendrier /></Prive>} />
       <Route path="/contacts" element={<Prive><Contacts /></Prive>} />
       <Route path="/objectifs" element={<Prive><Objectifs /></Prive>} />
+      <Route path="/budgets" element={<Prive><Budgets /></Prive>} />
       <Route path="/produits" element={<Prive><Produits /></Prive>} />
       <Route path="/notifications" element={<Prive><Notifications /></Prive>} />
       <Route path="/prets" element={<Prive><Prets /></Prive>} />

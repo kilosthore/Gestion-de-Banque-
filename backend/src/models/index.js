@@ -23,6 +23,9 @@ const User = sequelize.define('User', {
   dateCreation: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
   echecsConnexion: { type: DataTypes.INTEGER, defaultValue: 0 },
   verrouJusqua: { type: DataTypes.DATE, allowNull: true },
+  // Mot de passe temporaire délivré par l'admin (6 chiffres) : l'utilisateur
+  // doit obligatoirement le remplacer à sa première connexion réussie.
+  doitChangerMotDePasse: { type: DataTypes.BOOLEAN, defaultValue: false },
   // Workflow KYC (US-25) : inscription via /register-complet crée en 'en_verification'.
   // L'admin valide → 'actif'. L'inscription simple /register reste 'actif' direct (rétro-compat).
   statutDossier: {
@@ -97,6 +100,8 @@ const Transaction = sequelize.define('Transaction', {
   montant: { type: DataTypes.DOUBLE, allowNull: false },
   date: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
   description: { type: DataTypes.STRING, defaultValue: '' },
+  // Catégorie budgétaire, déduite automatiquement de la description (hook beforeCreate)
+  categorie: { type: DataTypes.STRING(30), allowNull: true },
   statut: { type: DataTypes.ENUM('executee', 'en_attente', 'planifiee', 'annulee'), defaultValue: 'executee' },
   sens: { type: DataTypes.ENUM('debit', 'credit'), allowNull: false },
   beneficiaire: { type: DataTypes.UUID, allowNull: true },
@@ -278,8 +283,39 @@ Otp.prototype.verifier = function (code) {
   return bcrypt.compare(code, this.codeHache);
 };
 
+/* ─── Budget (enveloppes mensuelles par catégorie de dépenses) ─── */
+const Budget = sequelize.define('Budget', {
+  _id: pk,
+  client: { type: DataTypes.UUID, allowNull: false },
+  categorie: { type: DataTypes.STRING(30), allowNull: false },
+  plafond: { type: DataTypes.DOUBLE, allowNull: false },
+}, {
+  tableName: 'budgets',
+  timestamps: false,
+  indexes: [{ unique: true, fields: ['client', 'categorie'] }], // 1 enveloppe par catégorie
+});
+
+/* ─── Hooks Transaction : catégorisation + surveillance budget ───
+   beforeCreate : toute transaction créée (virement, dépôt, PayPal, prêt…)
+   reçoit sa catégorie budgétaire — un seul point d'entrée pour tout le code.
+   afterCreate : vérifie le dépassement d'enveloppe APRÈS le commit de la
+   transaction SQL (jamais pendant : évite les interblocages avec les verrous). */
+const { categoriser } = require('../utils/categoriser');
+Transaction.addHook('beforeCreate', (tx) => {
+  if (!tx.categorie) tx.categorie = categoriser(tx.description, tx.type, tx.sens);
+});
+Transaction.addHook('afterCreate', (tx, options) => {
+  const verifier = () => {
+    // require paresseux : budget.js dépend de ce module (évite le cycle au chargement)
+    const { surveillerBudget } = require('../utils/budget');
+    surveillerBudget(tx).catch(() => {}); // best effort : ne bloque jamais l'opération
+  };
+  if (options.transaction) options.transaction.afterCommit(verifier);
+  else setImmediate(verifier);
+});
+
 module.exports = {
   sequelize, User, Compte, Transaction, Beneficiaire, Fournisseur,
   ObjectifEpargne, Notification, ProduitFinancier, ParametresGlobaux, Otp,
-  DemandePret, AuditLog, AuditChainState, RevokedToken,
+  DemandePret, AuditLog, AuditChainState, RevokedToken, Budget,
 };

@@ -60,6 +60,7 @@ app.use('/api/transactions', require('./routes/transactions.routes'));
 app.use('/api/prets', require('./routes/prets.routes'));
 app.use('/api/dashboard', require('./routes/dashboard.routes'));
 app.use('/api/paypal', require('./routes/paypal.routes'));
+app.use('/api/budgets', require('./routes/budgets.routes'));
 app.use('/api', require('./routes/divers.routes'));
 app.use('/api/admin', require('./routes/admin.routes'));
 

@@ -67,6 +67,8 @@ export default function Connexion() {
       const code = chiffres.join('');
       const d = await api.post('/auth/verify-otp', { tempToken, code });
       connecter(d.token, d.user);
+      // Code temporaire délivré par l'admin → choix d'un vrai mot de passe obligatoire
+      if (d.user.doitChangerMotDePasse) return navigate('/profil');
       navigate(d.user.role === 'admin' ? '/admin' : '/');
     } catch (err) {
       setErreur(err.message);

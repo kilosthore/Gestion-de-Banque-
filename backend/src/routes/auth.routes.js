@@ -4,7 +4,7 @@ const crypto = require('crypto');
 const rateLimit = require('express-rate-limit');
 const Ajv = require('ajv');
 const addFormats = require('ajv-formats');
-const { sequelize, User, Otp, Compte, RevokedToken } = require('../models');
+const { sequelize, User, Otp, Compte, RevokedToken, Notification } = require('../models');
 const { envoyerOtp, smtpConfigure } = require('../utils/mailer');
 const { protect } = require('../middleware/auth');
 const { auditLog } = require('../middleware/audit');
@@ -40,6 +40,7 @@ const signerComplet = (id, role) =>
 
 const publicUser = (u) => ({
   id: u._id, nom: u.nom, prenom: u.prenom, email: u.email, role: u.role, dateCreation: u.dateCreation,
+  doitChangerMotDePasse: Boolean(u.doitChangerMotDePasse), // force le changement du mdp temporaire
 });
 
 /** Le code OTP ne peut être exposé (réponse HTTP) qu'en dehors de la production.
@@ -159,12 +160,25 @@ router.post('/login', limiteurAuth, auditLog('auth.login'), async (req, res, nex
     }
     if (!(await user.comparerMotDePasse(motDePasse || ''))) {
       user.echecsConnexion += 1;
-      if (user.echecsConnexion >= MAX_ECHECS) {
+      const verrouille = user.echecsConnexion >= MAX_ECHECS;
+      if (verrouille) {
         user.verrouJusqua = new Date(Date.now() + VERROU_MINUTES * 60000);
         user.echecsConnexion = 0;
+        // Alerte immédiate aux administrateurs : ils peuvent délivrer un
+        // mot de passe temporaire à 6 chiffres via la réinitialisation (US-22).
+        const admins = await User.findAll({ where: { role: 'admin' } });
+        await Promise.all(admins.map((a) => Notification.envoyer(
+          a._id,
+          `Alerte sécurité (verrouillage) : le compte ${user.email} est verrouillé après ${MAX_ECHECS} mots de passe erronés. ` +
+          'Si le client a oublié son mot de passe, réinitialisez son profil pour lui remettre un code temporaire à 6 chiffres.'
+        )));
       }
       await user.save();
-      return res.status(401).json({ message: 'Identifiants incorrects' });
+      return res.status(401).json({
+        message: verrouille
+          ? `Compte verrouillé après ${MAX_ECHECS} tentatives. Mot de passe oublié ? Contactez votre banque : un administrateur vous remettra un code temporaire.`
+          : 'Identifiants incorrects',
+      });
     }
     user.echecsConnexion = 0;
     user.verrouJusqua = null;
@@ -250,6 +264,28 @@ router.post('/resend-otp', limiteurAuth, auditLog('auth.resend_otp'), async (req
 
 /* US-03 — Consulter mes informations personnelles */
 router.get('/me', protect, (req, res) => res.json({ user: publicUser(req.user) }));
+
+/* Changement de mot de passe — lève l'obligation posée par un code temporaire admin.
+   Audité : action sensible au même titre que la connexion. */
+router.post('/changer-mot-de-passe', protect, auditLog('auth.changement_mdp'), async (req, res, next) => {
+  try {
+    const { ancienMotDePasse, nouveauMotDePasse } = req.body;
+    const user = await User.scope('avecMdp').findByPk(req.user._id);
+    if (!(await user.comparerMotDePasse(ancienMotDePasse || ''))) {
+      return res.status(401).json({ message: 'Mot de passe actuel incorrect' });
+    }
+    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(nouveauMotDePasse || '')) {
+      return res.status(400).json({ message: 'Nouveau mot de passe trop faible : 8 caractères minimum avec majuscule, minuscule et chiffre' });
+    }
+    await user.update({
+      motDePasseHache: await User.hacher(nouveauMotDePasse),
+      doitChangerMotDePasse: false,
+    });
+    res.json({ message: 'Mot de passe modifié avec succès' });
+  } catch (e) {
+    next(e);
+  }
+});
 
 /* E1 — Déconnexion : révoque le JWT courant (blacklist jusqu'à son expiration) */
 router.post('/logout', protect, auditLog('logout'), async (req, res, next) => {

@@ -42,33 +42,38 @@ router.put('/parametres', auditLog('admin.parametres_modification'), async (req,
   res.json({ message: 'Paramètres mis à jour', parametres: params });
 });
 
-/* US-22 — Réinitialiser un profil client (nouveau mot de passe temporaire + déverrouillage)
-   Sécurité C3 : le mot de passe temporaire n'est JAMAIS retourné dans la réponse HTTP.
-   Il est envoyé par email au client (mode prod) ou loggé en console serveur (mode démo). */
+/* US-22 — Réinitialiser un profil client : code temporaire à 6 chiffres (façon NIP
+   bancaire) + déverrouillage immédiat + changement de mot de passe OBLIGATOIRE
+   à la prochaine connexion (le code temporaire ne peut pas devenir permanent).
+   Sécurité C3 : en production le code n'est JAMAIS retourné dans la réponse HTTP —
+   il part par email. Hors production, il est affiché à l'admin (mode démo). */
 router.post('/clients/:id/reinitialiser', auditLog('admin.reinit_client'), async (req, res) => {
   const client = await User.findOne({ where: { _id: req.params.id, role: 'client' } });
   if (!client) return res.status(404).json({ message: 'Client introuvable' });
 
-  // Mot de passe temporaire conforme à la politique (majuscule + minuscule + chiffre)
-  const mdpTemporaire = `Temp${crypto.randomInt(100000, 1000000)}a`;
+  // Code temporaire : 6 chiffres aléatoires cryptographiquement sûrs
+  const codeTemporaire = String(crypto.randomInt(100000, 1000000));
   await client.update({
-    motDePasseHache: await User.hacher(mdpTemporaire),
+    motDePasseHache: await User.hacher(codeTemporaire),
     echecsConnexion: 0,
     verrouJusqua: null,
+    doitChangerMotDePasse: true, // le client devra choisir un vrai mot de passe
   });
 
-  // Envoi du mot de passe par canal sûr (email) — jamais dans la réponse HTTP
-  await envoyerMdpTemporaire(client.email, mdpTemporaire);
+  // Envoi du code par canal sûr (email) — jamais dans la réponse HTTP en prod
+  await envoyerMdpTemporaire(client.email, codeTemporaire);
 
   await Notification.envoyer(
     client._id,
-    '🔐 Votre profil a été réinitialisé par un administrateur. Consultez votre email pour le mot de passe temporaire.'
+    'Votre profil a été réinitialisé par un administrateur. Connectez-vous avec le code temporaire à 6 chiffres reçu, puis choisissez un nouveau mot de passe.'
   );
 
+  const demo = process.env.NODE_ENV !== 'production' && !smtpConfigure();
   res.json({
     message: smtpConfigure()
-      ? `Profil réinitialisé. Mot de passe temporaire envoyé à ${client.email}.`
-      : 'Profil réinitialisé. Mot de passe temporaire affiché dans la console serveur (mode démo).',
+      ? `Profil réinitialisé. Code temporaire à 6 chiffres envoyé à ${client.email}. Le client devra choisir un nouveau mot de passe à sa prochaine connexion.`
+      : 'Profil réinitialisé. Code temporaire à 6 chiffres généré : le client devra choisir un nouveau mot de passe à sa prochaine connexion.',
+    ...(demo ? { codeTemporaireDemo: codeTemporaire } : {}), // jamais exposé en production
   });
 });
 

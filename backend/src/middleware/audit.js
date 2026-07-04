@@ -28,15 +28,28 @@ function auditLog(action) {
             params: nettoyerPayload(req.body),
           }),
         };
+        const userId = req.user?._id || req.auditUserId || null;
+        const ipAddress = (req.ip || '').toString().slice(0, 45);
         await ecrireEntreeChainee({
-          userId: req.user?._id || req.auditUserId || null,
+          userId,
           action,
           // req.ip est fiable grâce à trust proxy — pas de fallback sur
           // x-forwarded-for brut (falsifiable par le client)
-          ipAddress: (req.ip || '').toString().slice(0, 45),
+          ipAddress,
           userAgent: (req.headers['user-agent'] || '').slice(0, 500),
           payload,
         });
+
+        // Anti-fraude : les opérations financières RÉUSSIES passent au moteur
+        // de règles (montant, vélocité, nouvelle IP). Best effort, hors requête.
+        if (res.statusCode < 400 && userId) {
+          const montant = Number(req.body?.montant) || 0;
+          setImmediate(() => {
+            const { evaluerRisque } = require('../utils/fraude');
+            evaluerRisque({ userId, action, ip: ipAddress, montant })
+              .catch((err) => logger.error({ err: err.message, action }, 'fraude_evaluation_failed'));
+          });
+        }
       } catch (err) {
         logger.error({ err: err.message, action }, 'audit_log_failed');
       }
