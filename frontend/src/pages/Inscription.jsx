@@ -320,7 +320,7 @@ export default function Inscription() {
         </div>
 
         <p style={{ textAlign: 'center', marginTop: 18, fontSize: '0.85rem' }}>
-          Déjà inscrit ? <Link to="/connexion" style={{ color: 'var(--orange-fonce)', fontWeight: 700 }}>Se connecter</Link>
+          Déjà inscrit ? <Link to="/connexion" style={{ color: '#DFA76B', fontWeight: 700 }}>Se connecter</Link>
         </p>
       </div>
     </div>

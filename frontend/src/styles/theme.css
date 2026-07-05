@@ -11,7 +11,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ─── Variables CSS pour les tokens shadcn (utilisés par PixelHero) ─── */
+/* ─── Variables CSS pour les tokens shadcn (composants ui/*) ─── */
 :root {
   --hue-background: 247 248 251;        /* brume ivoire             */
   --hue-foreground: 20 28 46;           /* encre marine             */

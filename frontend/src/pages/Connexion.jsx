@@ -122,7 +122,7 @@ export default function Connexion() {
           <form onSubmit={etape2}>
             {info && <div className="alerte alerte-succes">{info}</div>}
             {codeDemo && (
-              <div className="alerte" style={{ background: 'var(--surface-2)', color: 'var(--texte-2)' }}>
+              <div className="alerte" style={{ background: 'rgba(255,255,255,0.08)', color: '#D5DDEA' }}>
                 🧪 Mode démo — votre code : <b style={{ letterSpacing: 4 }}>{codeDemo}</b>
               </div>
             )}

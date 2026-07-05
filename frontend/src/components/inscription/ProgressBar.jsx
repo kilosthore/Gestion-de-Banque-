@@ -1,4 +1,5 @@
-/** Barre de progression segmentée — étape active en orange, étapes franchies cochées. */
+/** Barre de progression segmentée — étape active en cuivre, étapes franchies cochées.
+    Affichée sur l'écran d'auth (fond marine sombre) : couleurs cuivre claires. */
 const LIBELLES = ['Personnel', 'Coordonnées', 'Pro & revenus', 'Compte', 'Conformité', 'Documents'];
 
 export default function ProgressBar({ current, total = 6 }) {
@@ -13,11 +14,11 @@ export default function ProgressBar({ current, total = 6 }) {
             <div key={n} style={{ flex: 1 }}>
               <div style={{
                 height: 6, borderRadius: 3,
-                background: actif ? '#f97316' : franchi ? '#fed7aa' : 'var(--bordure)',
+                background: actif ? '#C2762E' : franchi ? '#EBC9A4' : 'rgba(255,255,255,0.15)',
               }} />
               <p style={{
                 margin: '6px 0 0', fontSize: '0.7rem', textAlign: 'center',
-                color: actif ? '#f97316' : franchi ? 'var(--orange-fonce)' : 'var(--gris-fonce, #9ca3af)',
+                color: actif ? '#DFA76B' : franchi ? '#EBC9A4' : '#8FA0B8',
                 fontWeight: actif ? 700 : 500,
               }}>
                 {franchi ? '✓ ' : ''}{LIBELLES[i]}

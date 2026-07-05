@@ -55,7 +55,7 @@ function CarteCompte({ account }) {
         <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}><Icone className="w-4 h-4" /> {libelle}</h3>
         <span className="sous-titre" style={{ margin: 0 }}>{masque}</span>
       </div>
-      <p style={{ fontSize: '1.6rem', fontWeight: 700, margin: 0, color: 'var(--orange-fonce)' }}>
+      <p className="text-cuivre-600 dark:text-cuivre-300" style={{ fontSize: '1.6rem', fontWeight: 700, margin: 0 }}>
         {Number(account.solde).toFixed(2)} {account.devise}
       </p>
       <Link to={`/comptes/${account._id}`} className="btn btn-secondaire" style={{ alignSelf: 'flex-start' }}>
