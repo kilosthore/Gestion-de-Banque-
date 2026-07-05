@@ -1,8 +1,9 @@
 import { useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Landmark } from 'lucide-react';
 import { api } from '../api/client';
 import { useAuth } from '../context/AuthContext';
+import FondAnime from '../components/ui/background-paths';
+import marqueSombre from '../assets/torcolbank-mark-sombre.svg';
 
 /**
  * US-23 — Authentification en 2 étapes :
@@ -91,11 +92,12 @@ export default function Connexion() {
   };
 
   return (
-    <div className="ecran-auth">
+    <div className="ecran-auth relative">
+      <FondAnime className="z-0" />
       <div className="boite-auth carte anime">
         <h1 className="flex items-center justify-center gap-2">
-          <Landmark className="w-6 h-6 text-primaire-400" aria-hidden="true" />
-          <span className="texte-or">Ma Banque</span>
+          <img src={marqueSombre} alt="" className="w-8 h-8" aria-hidden="true" />
+          <span className="texte-or">TorcolBank</span>
         </h1>
         <p className="sous-titre" style={{ textAlign: 'center' }}>
           {etape === 1 ? 'Connexion sécurisée' : 'Vérification en 2 étapes'}
@@ -113,7 +115,7 @@ export default function Connexion() {
               {chargement ? 'Vérification…' : 'Se connecter →'}
             </button>
             <p style={{ textAlign: 'center', marginTop: 14, fontSize: '0.9rem' }}>
-              Pas encore de profil ? <Link to="/inscription" style={{ color: 'var(--orange-fonce)', fontWeight: 700 }}>Créer un profil</Link>
+              Pas encore de profil ? <Link to="/inscription" style={{ color: '#DFA76B', fontWeight: 700 }}>Créer un profil</Link>
             </p>
           </form>
         ) : (

@@ -60,9 +60,9 @@ export default function Profil() {
           <h2>Informations</h2>
           <table>
             <tbody>
-              <tr><td className="text-amber-700 dark:text-primaire-400">Email</td><td>{user.email}</td></tr>
-              <tr><td className="text-amber-700 dark:text-primaire-400">Rôle</td><td><span className="badge capitalize">{user.role}</span></td></tr>
-              <tr><td className="text-amber-700 dark:text-primaire-400">Membre depuis</td><td>{new Date(user.dateCreation).toLocaleDateString('fr-CA')}</td></tr>
+              <tr><td className="text-slate-600 dark:text-primaire-400">Email</td><td>{user.email}</td></tr>
+              <tr><td className="text-slate-600 dark:text-primaire-400">Rôle</td><td><span className="badge capitalize">{user.role}</span></td></tr>
+              <tr><td className="text-slate-600 dark:text-primaire-400">Membre depuis</td><td>{new Date(user.dateCreation).toLocaleDateString('fr-CA')}</td></tr>
             </tbody>
           </table>
         </div>

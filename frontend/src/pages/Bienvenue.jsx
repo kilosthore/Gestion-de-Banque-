@@ -20,7 +20,7 @@ export default function Bienvenue() {
     {
       icone: <UserPlus className="w-6 h-6" />,
       titre: 'Créer un compte',
-      texte: 'Rejoignez la Banque en quelques minutes — un compte chèque offert.',
+      texte: 'Rejoignez TorcolBank en quelques minutes — un compte chèque offert.',
       cta: 'Inscription',
       route: '/inscription',
     },
@@ -30,7 +30,7 @@ export default function Bienvenue() {
     <div className="min-h-screen bg-background">
       <PixelHero
         word1="Bienvenue"
-        word2="à la Banque"
+        word2="chez TorcolBank"
         description="Votre banque en ligne, simple, sécurisée et toujours disponible. Gérez vos comptes, suivez vos dépenses et atteignez vos objectifs financiers en quelques clics."
         primaryCta="Se connecter"
         primaryCtaMobile="Connexion"
@@ -43,10 +43,10 @@ export default function Bienvenue() {
       {/* Section cartes d'actions */}
       <section className="px-4 py-16 md:py-24 max-w-6xl mx-auto">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-extrabold text-amber-950 dark:text-primaire-100 mb-3">
+          <h2 className="text-3xl md:text-4xl font-extrabold text-primaire-700 dark:text-primaire-100 mb-3">
             Commencez en quelques secondes
           </h2>
-          <p className="text-amber-700 dark:text-primaire-400 text-base md:text-lg">
+          <p className="text-slate-600 dark:text-primaire-400 text-base md:text-lg">
             Choisissez l'action qui vous convient pour démarrer votre expérience bancaire.
           </p>
         </div>
@@ -64,13 +64,13 @@ export default function Bienvenue() {
                   {a.icone}
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-xl font-bold text-amber-950 dark:text-primaire-100 mb-1">
+                  <h3 className="text-xl font-bold text-primaire-700 dark:text-primaire-100 mb-1">
                     {a.titre}
                   </h3>
-                  <p className="text-amber-700 dark:text-primaire-400 text-sm">{a.texte}</p>
+                  <p className="text-slate-600 dark:text-primaire-400 text-sm">{a.texte}</p>
                 </div>
               </div>
-              <div className="flex items-center justify-end gap-2 text-amber-700 dark:text-primaire-400 font-bold text-sm group-hover:text-primaire-600 dark:group-hover:text-primaire-300 transition-colors">
+              <div className="flex items-center justify-end gap-2 text-slate-600 dark:text-primaire-400 font-bold text-sm group-hover:text-primaire-600 dark:group-hover:text-primaire-300 transition-colors">
                 {a.cta}
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </div>
@@ -79,7 +79,7 @@ export default function Bienvenue() {
         </div>
 
         {/* Bandeau sécurité */}
-        <div className="mt-10 flex items-center justify-center gap-3 text-amber-700 dark:text-primaire-400 text-sm">
+        <div className="mt-10 flex items-center justify-center gap-3 text-slate-600 dark:text-primaire-400 text-sm">
           <ShieldCheck className="w-5 h-5" />
           <span>Authentification en 2 étapes — vos données sont protégées.</span>
         </div>

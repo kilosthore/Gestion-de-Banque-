@@ -73,7 +73,7 @@ export default function Objectifs() {
             <div className="progression-fond">
               <div className="progression-barre" style={{ width: `${o.progression}%` }} />
             </div>
-            <p className="font-bold text-amber-700 dark:text-primaire-400 mt-1">{o.progression} %</p>
+            <p className="font-bold text-slate-600 dark:text-primaire-400 mt-1">{o.progression} %</p>
             <div className="flex gap-2 mt-3">
               <select className="flex-1" value={versement[o._id]?.compte || ''}
                 onChange={(e) => setVersement({ ...versement, [o._id]: { ...versement[o._id], compte: e.target.value } })}>

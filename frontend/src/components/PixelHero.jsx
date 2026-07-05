@@ -16,7 +16,7 @@ const BRAND_LOGOS = [
       viewBox="0 0 262 33"
     >
       <path
-        className="fill-cyan-500"
+        className="fill-primaire-400"
         fillRule="evenodd"
         clipRule="evenodd"
         d="M27 0C19.8 0 15.3 3.6 13.5 10.8C16.2 7.2 19.35 5.85 22.95 6.75C25.004 7.263 26.472 8.754 28.097 10.403C30.744 13.09 33.808 16.2 40.5 16.2C47.7 16.2 52.2 12.6 54 5.4C51.3 9 48.15 10.35 44.55 9.45C42.496 8.937 41.028 7.446 39.403 5.797C36.756 3.11 33.692 0 27 0ZM13.5 16.2C6.3 16.2 1.8 19.8 0 27C2.7 23.4 5.85 22.05 9.45 22.95C11.504 23.464 12.972 24.954 14.597 26.603C17.244 29.29 20.308 32.4 27 32.4C34.2 32.4 38.7 28.8 40.5 21.6C37.8 25.2 34.65 26.55 31.05 25.65C28.996 25.137 27.528 23.646 25.903 21.997C23.256 19.31 20.192 16.2 13.5 16.2Z"
@@ -279,17 +279,17 @@ export default function PixelHero({
         .tahoe-glass-text {
           color: transparent;
           background: linear-gradient(135deg,
-            rgba(251,191,36,1) 0%,       /* amber-400 / primaire-400 */
-            rgba(245,158,11,0.55) 25%,   /* amber-500 / primaire-500 */
-            rgba(234,88,12,0.35) 45%,    /* orange-600 / primaire-600 */
-            rgba(251,191,36,1) 55%,
-            rgba(245,158,11,0.5) 75%,
-            rgba(234,88,12,1) 100%);
+            rgba(223,167,107,1) 0%,      /* cuivre-300 */
+            rgba(194,118,46,0.55) 25%,   /* cuivre-500 */
+            rgba(166,95,30,0.35) 45%,    /* cuivre-600 */
+            rgba(223,167,107,1) 55%,
+            rgba(194,118,46,0.5) 75%,
+            rgba(166,95,30,1) 100%);
           background-size: 200% auto;
           -webkit-background-clip: text;
           background-clip: text;
-          -webkit-text-stroke: 1.5px rgba(234,88,12,0.35);
-          filter: drop-shadow(0 15px 35px rgba(234,88,12,0.28)) drop-shadow(0 5px 10px rgba(194,65,12,0.18));
+          -webkit-text-stroke: 1.5px rgba(166,95,30,0.35);
+          filter: drop-shadow(0 15px 35px rgba(166,95,30,0.28)) drop-shadow(0 5px 10px rgba(124,70,20,0.18));
           animation: shimmer 8s linear infinite;
         }
         @keyframes shimmer {
@@ -320,7 +320,7 @@ export default function PixelHero({
 
       {/* Description + marquee mobile */}
       <div className="flex flex-col items-center justify-center text-center my-auto md:my-0 order-2 md:order-2 px-1 w-full pointer-events-none">
-        <p className="text-sm sm:text-lg md:text-xl font-semibold text-amber-800 dark:text-primaire-300 max-w-[95%] sm:max-w-md md:max-w-xl px-1 leading-relaxed">
+        <p className="text-sm sm:text-lg md:text-xl font-semibold text-primaire-600 dark:text-primaire-300 max-w-[95%] sm:max-w-md md:max-w-xl px-1 leading-relaxed">
           {description}
         </p>
 

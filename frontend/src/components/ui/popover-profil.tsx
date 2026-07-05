@@ -38,10 +38,10 @@ export function PopoverProfil({ user, onVoirProfil, onDeconnexion }: any) {
                   <span className="absolute -bottom-1 -right-1 h-3 w-3 rounded-full border-2 border-white dark:border-sombre-surface bg-green-400" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-bold text-amber-950 dark:text-primaire-100 !mb-0">
+                  <h3 className="font-bold text-primaire-700 dark:text-primaire-100 !mb-0">
                     {user.prenom} {user.nom}
                   </h3>
-                  <p className="text-sm text-amber-700 dark:text-primaire-400 capitalize">
+                  <p className="text-sm text-slate-600 dark:text-primaire-400 capitalize">
                     {user.role === 'admin' ? 'Administrateur' : 'Client'}
                   </p>
                   <p className="text-xs text-green-600 dark:text-green-400">En ligne</p>
@@ -51,17 +51,17 @@ export function PopoverProfil({ user, onVoirProfil, onDeconnexion }: any) {
 
             <div className="border-b border-primaire-200 dark:border-sombre-bordure p-3">
               <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm text-amber-700 dark:text-primaire-400">
+                <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-primaire-400">
                   <Mail className="h-4 w-4" />
                   <span className="truncate">{user.email}</span>
                 </div>
                 {user.dateCreation && (
-                  <div className="flex items-center gap-2 text-sm text-amber-700 dark:text-primaire-400">
+                  <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-primaire-400">
                     <Calendar className="h-4 w-4" />
                     <span>Membre depuis le {new Date(user.dateCreation).toLocaleDateString('fr-CA')}</span>
                   </div>
                 )}
-                <div className="flex items-center gap-2 text-sm text-amber-700 dark:text-primaire-400">
+                <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-primaire-400">
                   <ShieldCheck className="h-4 w-4" />
                   <span>Double authentification active</span>
                 </div>
@@ -73,7 +73,7 @@ export function PopoverProfil({ user, onVoirProfil, onDeconnexion }: any) {
                 <button
                   data-testid="popover-action-profil"
                   onClick={onVoirProfil}
-                  className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-amber-700 dark:text-primaire-400 hover:bg-primaire-100 dark:hover:bg-sombre-surface2 focus:outline-none focus:ring-2 focus:ring-primaire-500 transition-colors"
+                  className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-600 dark:text-primaire-400 hover:bg-primaire-100 dark:hover:bg-sombre-surface2 focus:outline-none focus:ring-2 focus:ring-primaire-500 transition-colors"
                 >
                   <User className="h-4 w-4" />
                   Voir mon profil

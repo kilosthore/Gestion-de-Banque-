@@ -26,7 +26,7 @@ function CarteCompte({ account }) {
     const utilise = Number(account.soldeUtilise || 0);
     const limite = Number(account.limite || 1);
     const pct = Math.min(100, (utilise / limite) * 100);
-    const couleurBarre = pct > 80 ? '#ef4444' : pct > 50 ? '#f59e0b' : '#10b981';
+    const couleurBarre = pct > 80 ? '#ef4444' : pct > 50 ? '#C2762E' : '#10b981';
 
     return (
       <div className="carte" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>

@@ -102,7 +102,7 @@ export default function Calendrier() {
 
           <div className="grid grid-cols-7 gap-1.5 text-center">
             {JOURS.map((j) => (
-              <div key={j} className="text-xs font-bold uppercase tracking-wide text-amber-700 dark:text-primaire-400 py-1">{j}</div>
+              <div key={j} className="text-xs font-bold uppercase tracking-wide text-slate-600 dark:text-primaire-400 py-1">{j}</div>
             ))}
             {cases.map((j, i) => {
               if (j === null) return <div key={`v-${i}`} />;
@@ -141,7 +141,7 @@ export default function Calendrier() {
               <div>
                 <b>{t.description}</b>
                 <br />
-                <small className="text-amber-700 dark:text-primaire-400">
+                <small className="text-slate-600 dark:text-primaire-400">
                   {t.recurrence === 'hebdomadaire' ? 'Chaque semaine' : 'Chaque mois'} ·
                   prochaine : {new Date(t.prochaineDate).toLocaleDateString('fr-CA')}
                 </small>

@@ -1,36 +1,36 @@
 /* ════════════════════════════════════════════════════════
-   THÈME « VERRE OBSIDIENNE & OR » — Ma Banque (Tailwind CSS)
+   THÈME « MARINE & CUIVRE » — TorcolBank (Tailwind CSS)
    Design tokens dans tailwind.config.js — composants via @apply
-   Clair  : porcelaine ivoire + or bronze (contraste AA garanti)
-   Sombre : obsidienne #050505 / minuit #0D0B14, cartes en verre
+   Clair  : brume ivoire + marine Torcol #1E3055 (contraste AA)
+   Sombre : encre marine #0A1122 / nuit #101A30, cartes en verre
             dépoli (backdrop-blur), arêtes blanches translucides,
-            accent or champagne #D4AF37, grain photographique.
+            accent cuivre #C2762E, grain photographique.
    ════════════════════════════════════════════════════════ */
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* ─── Variables CSS pour les tokens shadcn (utilisés par PixelHero) ─── */
 :root {
-  --hue-background: 249 246 239;        /* ivoire porcelaine        */
-  --hue-foreground: 26 22 12;           /* brun-noir profond        */
-  --hue-primary: 169 132 28;            /* or bronze (AA sur clair) */
+  --hue-background: 247 248 251;        /* brume ivoire             */
+  --hue-foreground: 20 28 46;           /* encre marine             */
+  --hue-primary: 30 48 85;              /* marine Torcol (AA clair) */
   --hue-primary-foreground: 255 255 255;
-  --hue-muted-foreground: 92 78 40;     /* bronze doux              */
+  --hue-muted-foreground: 61 74 99;     /* ardoise marine           */
   --hue-card: 255 255 255;
-  --hue-card-foreground: 26 22 12;
-  --hue-border: 226 217 190;            /* sable                    */
+  --hue-card-foreground: 20 28 46;
+  --hue-border: 213 221 234;            /* bleu sable               */
 }
 [data-theme='sombre'] {
-  --hue-background: 5 5 5;              /* obsidienne               */
-  --hue-foreground: 243 236 215;        /* champagne pâle           */
-  --hue-primary: 212 175 55;            /* or signature             */
-  --hue-primary-foreground: 5 5 5;
-  --hue-muted-foreground: 214 202 165;  /* champagne assourdi       */
-  --hue-card: 13 11 20;                 /* minuit cosmos            */
-  --hue-card-foreground: 243 236 215;
-  --hue-border: 46 44 54;               /* arête de verre           */
+  --hue-background: 10 17 34;           /* encre marine             */
+  --hue-foreground: 232 237 245;        /* brume pâle               */
+  --hue-primary: 199 123 61;            /* cuivre signature         */
+  --hue-primary-foreground: 10 17 34;
+  --hue-muted-foreground: 169 186 212;  /* marine pâle              */
+  --hue-card: 16 26 48;                 /* marine nuit              */
+  --hue-card-foreground: 232 237 245;
+  --hue-border: 42 54 78;               /* arête de verre           */
 }
 
 /* Grain photographique : donne la texture « matière » du verre.
@@ -58,23 +58,23 @@
 
 @layer base {
   body {
-    @apply font-sans bg-primaire-50 text-[#1A160C] transition-colors duration-300;
+    @apply font-sans bg-primaire-50 text-[#141C2E] transition-colors duration-300;
   }
   [data-theme='sombre'] body {
     @apply bg-aurore-obsidienne bg-fixed text-primaire-100;
   }
   h1 { @apply text-2xl font-bold tracking-tight mb-1; }
   h2 { @apply text-lg font-semibold mb-3; }
-  label { @apply block font-semibold text-sm text-[#5C4E28] dark:text-primaire-200/80 mt-2.5 mb-1; }
+  label { @apply block font-semibold text-sm text-[#3D4A63] dark:text-primaire-200/80 mt-2.5 mb-1; }
   input, select {
-    @apply w-full px-3.5 py-2.5 rounded-xl border border-primaire-200 bg-white text-[#1A160C]
+    @apply w-full px-3.5 py-2.5 rounded-xl border border-primaire-200 bg-white text-[#141C2E]
            transition-colors focus:outline-none focus:border-primaire-500
            dark:bg-white/[0.06] dark:border-white/10 dark:text-primaire-100
-           dark:backdrop-blur-md dark:focus:border-primaire-400/60
+           dark:backdrop-blur-md dark:focus:border-cuivre-400/60
            dark:placeholder:text-white/30;
   }
   table { @apply w-full border-collapse; }
-  th { @apply text-left px-2.5 py-2.5 text-[#5C4E28] dark:text-primaire-200/70 text-xs uppercase tracking-wide; }
+  th { @apply text-left px-2.5 py-2.5 text-[#3D4A63] dark:text-primaire-200/70 text-xs uppercase tracking-wide; }
   td { @apply px-2.5 py-3 border-t border-primaire-200 dark:border-white/[0.07]; }
   tr:hover td { @apply bg-primaire-100/70 dark:bg-white/[0.04]; }
 }
@@ -94,15 +94,15 @@
   }
   .nav-lien {
     @apply flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl font-semibold no-underline
-           text-[#5C4E28] transition-all duration-200 hover:bg-primaire-100 hover:translate-x-1
+           text-[#3D4A63] transition-all duration-200 hover:bg-primaire-100 hover:translate-x-1
            cursor-pointer
            dark:text-primaire-100/70 dark:hover:bg-white/[0.06] dark:hover:text-primaire-100;
   }
-  /* Actif : pastille de verre bordée d'or — le texte reste clair (contraste) */
+  /* Actif : pastille marine (clair) / verre bordé de cuivre (sombre) */
   .nav-lien.actif {
     @apply bg-primaire-600 text-white shadow-ambre hover:translate-x-0
-           dark:bg-white/[0.08] dark:text-primaire-300 dark:border dark:border-primaire-400/40
-           dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.15),0_0_24px_rgba(212,175,55,0.15)];
+           dark:bg-white/[0.08] dark:text-cuivre-300 dark:border dark:border-cuivre-400/40
+           dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.15),0_0_24px_rgba(199,123,61,0.18)];
   }
 
   /* ─── Cartes (verre dépoli) ─── */
@@ -115,23 +115,23 @@
   .carte-compte {
     @apply relative overflow-hidden text-white border-none cursor-pointer
            transition-transform duration-200 hover:-translate-y-1 hover:scale-[1.01] hover:shadow-ambre-lg
-           bg-[linear-gradient(150deg,#16131F,#0D0B14_55%,#1c1526)]
+           bg-[linear-gradient(150deg,#18233D,#101A30_55%,#1B2A4A)]
            shadow-[inset_0_1px_1px_rgba(255,255,255,0.14),0_20px_48px_-12px_rgba(0,0,0,0.6)]
            before:absolute before:inset-0 before:pointer-events-none
-           before:bg-[radial-gradient(420px_180px_at_85%_-20%,rgba(212,175,55,0.22),transparent_65%)];
+           before:bg-[radial-gradient(420px_180px_at_85%_-20%,rgba(199,123,61,0.25),transparent_65%)];
   }
 
   /* ─── Boutons (focus visible = accessibilité WCAG) ─── */
   .btn {
-    @apply bg-degrade text-[#171204] border-none px-5 py-2.5 rounded-2xl font-bold text-sm
+    @apply bg-degrade text-white border-none px-5 py-2.5 rounded-2xl font-bold text-sm
            cursor-pointer transition-all duration-200 hover:brightness-110 hover:-translate-y-0.5
            hover:shadow-ambre-lg shadow-[inset_0_1px_1px_rgba(255,255,255,0.35)]
            focus-visible:outline focus-visible:outline-2
-           focus-visible:outline-offset-2 focus-visible:outline-primaire-400
+           focus-visible:outline-offset-2 focus-visible:outline-cuivre-400
            disabled:opacity-50 disabled:cursor-not-allowed disabled:translate-y-0;
   }
   .btn-secondaire {
-    @apply bg-primaire-100 text-[#5C4E28] border border-primaire-200 bg-none
+    @apply bg-primaire-100 text-[#3D4A63] border border-primaire-200 bg-none
            dark:bg-white/[0.08] dark:text-primaire-100 dark:border-white/10
            dark:hover:bg-white/[0.14] dark:backdrop-blur-md;
   }
@@ -140,7 +140,7 @@
   /* ─── Badges / alertes ─── */
   .badge {
     @apply inline-block px-2.5 py-0.5 rounded-full text-xs font-bold
-           bg-primaire-100 text-[#5C4E28] dark:bg-white/[0.08] dark:text-primaire-200 dark:border dark:border-white/10;
+           bg-primaire-100 text-[#3D4A63] dark:bg-white/[0.08] dark:text-primaire-200 dark:border dark:border-white/10;
   }
   .badge-credit { @apply bg-green-100 text-green-700 dark:bg-green-400/10 dark:text-green-300 dark:border-green-400/20; }
   .badge-debit { @apply bg-red-100 text-red-700 dark:bg-red-400/10 dark:text-red-300 dark:border-red-400/20; }
@@ -152,10 +152,10 @@
   .otp-conteneur { @apply flex gap-2.5 justify-center my-5; }
   .otp-case {
     @apply w-12 h-14 md:w-[52px] md:h-[62px] text-center text-2xl font-bold
-           border border-primaire-200 rounded-2xl bg-white text-[#1A160C]
+           border border-primaire-200 rounded-2xl bg-white text-[#141C2E]
            transition-all focus:border-primaire-500 focus:scale-105 focus:animate-pulsation
            dark:bg-white/[0.06] dark:border-white/15 dark:text-primaire-100 dark:backdrop-blur-md
-           dark:focus:border-primaire-400 dark:focus:shadow-[0_0_20px_rgba(212,175,55,0.25)];
+           dark:focus:border-cuivre-400 dark:focus:shadow-[0_0_20px_rgba(199,123,61,0.30)];
   }
 
   /* ─── Progression / graphique ─── */
@@ -164,27 +164,27 @@
   .graphique { @apply flex items-end gap-3.5 h-44 pt-2.5; }
   .graphique .barre { @apply flex-1 bg-degrade rounded-t-lg min-h-1 relative transition-[height] duration-700 opacity-90; }
   .graphique .barre span { @apply absolute -top-5 left-1/2 -translate-x-1/2 text-[11px] font-bold whitespace-nowrap; }
-  .graphique .barre small { @apply absolute -bottom-5 left-1/2 -translate-x-1/2 text-[11px] text-[#5C4E28] dark:text-primaire-200/70; }
+  .graphique .barre small { @apply absolute -bottom-5 left-1/2 -translate-x-1/2 text-[11px] text-[#3D4A63] dark:text-primaire-200/70; }
 
   /* ─── Onglets ─── */
   .onglets { @apply flex gap-2 flex-wrap mb-4; }
   .onglet {
-    @apply px-4 py-2 rounded-full border border-primaire-200 bg-white text-[#5C4E28] font-bold
+    @apply px-4 py-2 rounded-full border border-primaire-200 bg-white text-[#3D4A63] font-bold
            cursor-pointer transition-all duration-200 hover:border-primaire-500
            dark:bg-white/[0.05] dark:text-primaire-100/80 dark:border-white/10 dark:backdrop-blur-md
-           dark:hover:border-primaire-400/50;
+           dark:hover:border-cuivre-400/50;
   }
   .onglet.actif {
     @apply bg-primaire-600 text-white border-transparent
-           dark:bg-white/[0.10] dark:text-primaire-300 dark:border-primaire-400/50;
+           dark:bg-white/[0.10] dark:text-cuivre-300 dark:border-cuivre-400/50;
   }
 
-  /* ─── Écran d'authentification (aurore obsidienne plein écran) ─── */
+  /* ─── Écran d'authentification (aurore marine plein écran) ─── */
   .ecran-auth {
     @apply min-h-screen flex items-center justify-center p-5
            bg-aurore-obsidienne bg-fixed;
   }
-  .boite-auth { @apply w-full max-w-md; }
+  .boite-auth { @apply w-full max-w-md relative z-10; }
   /* Sur l'écran d'auth, la carte est en verre sombre quel que soit le mode */
   .ecran-auth .carte {
     @apply bg-white/[0.05] border-white/10 backdrop-blur-2xl backdrop-saturate-150 text-primaire-100
@@ -198,7 +198,7 @@
 
   /* ─── Divers ─── */
   .entete-page { @apply flex justify-between items-center mb-5 flex-wrap gap-2.5; }
-  .sous-titre { @apply text-[#5C4E28] dark:text-primaire-200/70 mb-5; }
+  .sous-titre { @apply text-[#3D4A63] dark:text-primaire-200/70 mb-5; }
   .pastille-notif { @apply bg-red-600 text-white rounded-full text-[11px] px-1.5 py-px font-extrabold; }
   .grille { @apply grid gap-4; }
   .grille-2 { @apply grid-cols-1 sm:grid-cols-2; }

@@ -37,7 +37,7 @@ export default function Prets() {
   const badgeStatut = (statut) => {
     if (statut === 'approuvee') return <span className="badge" style={{ background: '#10b981', color: 'white' }}><CheckCircle2 className="inline w-3.5 h-3.5 mr-1 -mt-0.5" />Approuvée</span>;
     if (statut === 'refusee') return <span className="badge" style={{ background: '#ef4444', color: 'white' }}><XCircle className="inline w-3.5 h-3.5 mr-1 -mt-0.5" />Refusée</span>;
-    return <span className="badge" style={{ background: '#f59e0b', color: 'white' }}><Clock className="inline w-3.5 h-3.5 mr-1 -mt-0.5" />En attente</span>;
+    return <span className="badge" style={{ background: '#C2762E', color: 'white' }}><Clock className="inline w-3.5 h-3.5 mr-1 -mt-0.5" />En attente</span>;
   };
 
   const aUneDemandeEnAttente = demandes.some((d) => d.statut === 'en_attente');
@@ -104,7 +104,7 @@ export default function Prets() {
               </p>
               <p className="!mb-1"><em>Motif :</em> {d.motif}</p>
               {d.commentaireDecision && (
-                <p className="!mb-1 text-amber-700 dark:text-primaire-400">
+                <p className="!mb-1 text-slate-600 dark:text-primaire-400">
                   <em>Décision admin :</em> {d.commentaireDecision}
                 </p>
               )}

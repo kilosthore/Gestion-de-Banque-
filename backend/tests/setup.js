@@ -19,6 +19,11 @@ async function viderBase() {
 }
 
 async function fermerBase() {
+  // Attendre un court instant pour laisser s'exécuter les tâches asynchrones
+  // lancées en arrière-plan (hooks `afterCreate`, setImmediate, etc.). Sans
+  // cette pause, certaines opérations peuvent tenter d'utiliser la connexion
+  // après la fermeture, causant des erreurs dans Jest.
+  await new Promise((res) => setTimeout(res, 100));
   await sequelize.close();
 }
 

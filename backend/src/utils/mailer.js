@@ -27,18 +27,18 @@ async function envoyerOtp(email, code) {
     auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
   });
   await transporteur.sendMail({
-    from: `"Ma Banque" <${process.env.SMTP_USER}>`,
+    from: `"TorcolBank" <${process.env.SMTP_USER}>`,
     to: email,
     subject: 'Votre code de vérification',
     html: `
-      <div style="font-family:Arial,sans-serif;max-width:480px;margin:auto;border:1px solid #fed7aa;border-radius:12px;overflow:hidden">
-        <div style="background:linear-gradient(135deg,#f59e0b,#f97316);padding:20px;color:#fff">
-          <h2 style="margin:0">🏦 Ma Banque</h2>
+      <div style="font-family:Arial,sans-serif;max-width:480px;margin:auto;border:1px solid #D5DDEA;border-radius:12px;overflow:hidden">
+        <div style="background:linear-gradient(135deg,#1E3055,#2C4A7C);padding:20px;color:#fff">
+          <h2 style="margin:0">🏦 TorcolBank</h2>
         </div>
         <div style="padding:24px">
           <p>Bonjour,</p>
           <p>Votre code de vérification à 6 chiffres :</p>
-          <p style="font-size:32px;font-weight:bold;letter-spacing:8px;color:#ea580c;text-align:center">${code}</p>
+          <p style="font-size:32px;font-weight:bold;letter-spacing:8px;color:#C2762E;text-align:center">${code}</p>
           <p style="color:#777">Ce code expire dans <b>5 minutes</b>. Ne le partagez jamais.</p>
         </div>
       </div>`,
@@ -66,18 +66,18 @@ async function envoyerMdpTemporaire(email, motDePasseTemporaire) {
     auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
   });
   await transporteur.sendMail({
-    from: `"Ma Banque" <${process.env.SMTP_USER}>`,
+    from: `"TorcolBank" <${process.env.SMTP_USER}>`,
     to: email,
     subject: 'Réinitialisation de votre mot de passe',
     html: `
-      <div style="font-family:Arial,sans-serif;max-width:480px;margin:auto;border:1px solid #fed7aa;border-radius:12px;overflow:hidden">
-        <div style="background:linear-gradient(135deg,#f59e0b,#f97316);padding:20px;color:#fff">
-          <h2 style="margin:0">🏦 Ma Banque</h2>
+      <div style="font-family:Arial,sans-serif;max-width:480px;margin:auto;border:1px solid #D5DDEA;border-radius:12px;overflow:hidden">
+        <div style="background:linear-gradient(135deg,#1E3055,#2C4A7C);padding:20px;color:#fff">
+          <h2 style="margin:0">🏦 TorcolBank</h2>
         </div>
         <div style="padding:24px">
           <p>Bonjour,</p>
           <p>Un administrateur a réinitialisé votre profil. Votre <b>mot de passe temporaire</b> est :</p>
-          <p style="font-size:22px;font-weight:bold;letter-spacing:2px;color:#ea580c;text-align:center;background:#fff7ed;padding:12px;border-radius:8px">${motDePasseTemporaire}</p>
+          <p style="font-size:22px;font-weight:bold;letter-spacing:2px;color:#C2762E;text-align:center;background:#F7F8FB;padding:12px;border-radius:8px">${motDePasseTemporaire}</p>
           <p style="color:#777">Connectez-vous puis changez-le immédiatement depuis votre profil. Ne partagez jamais ce mot de passe.</p>
         </div>
       </div>`,

@@ -3,13 +3,16 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   Home, CreditCard, ArrowLeftRight, History, Users, PiggyBank, Coins,
-  TrendingUp, Bell, User, Wrench, Wallet, Moon, Sun, LogOut, CalendarDays, Landmark, PieChart,
+  TrendingUp, Bell, User, Wrench, Wallet, Moon, Sun, LogOut, CalendarDays, PieChart,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { entreeCascade } from '../lib/animations';
 import { api } from '../api/client';
 import { Dock } from './ui/dock-two';
 import { PopoverProfil } from './ui/popover-profil';
+import FondAnime from './ui/background-paths';
+import marqueClaire from '../assets/torcolbank-mark.svg';
+import marqueSombre from '../assets/torcolbank-mark-sombre.svg';
 
 export default function Layout({ children }) {
   const { user, deconnecter, theme, setTheme } = useAuth();
@@ -80,11 +83,16 @@ export default function Layout({ children }) {
 
   return (
     <div className="app">
+      {/* Fond animé (rubans marine/cuivre) derrière tout le contenu */}
+      <FondAnime className="-z-10" />
       <aside className="sidebar">
         <div className="flex items-center justify-between w-full gap-2">
           <div className="logo flex items-center gap-2">
-            <Landmark className="w-5 h-5 text-primaire-400 shrink-0" aria-hidden="true" />
-            Ma Banque
+            <img
+              src={theme === 'sombre' ? marqueSombre : marqueClaire}
+              alt="" className="w-6 h-6 shrink-0" aria-hidden="true"
+            />
+            TorcolBank
           </div>
           <PopoverProfil user={user} onVoirProfil={() => navigate('/profil')} onDeconnexion={sortir} />
         </div>

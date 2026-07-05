@@ -5,24 +5,33 @@ export default {
   darkMode: ['class', '[data-theme="sombre"]'],
   theme: {
     extend: {
-      // ── Design tokens — thème "Verre Obsidienne & Or" ──
+      // ── Design tokens — thème "Marine & Cuivre" (TorcolBank) ──
       // Les NOMS des tokens sont conservés (primaire, sombre, degrade, ambre…)
       // pour que tous les composants existants héritent du thème sans modification.
       colors: {
         primaire: {
-          50: '#FBF8EF',   // ivoire chaud (fond clair)
-          100: '#F3ECD7',  // champagne pâle
-          200: '#E6D9A8',  // sable doré
-          300: '#DCC470',  // or clair
-          400: '#D4AF37',  // or signature
-          500: '#C9A227',  // or profond
-          600: '#A9841C',  // or bronze (contraste AA sur clair)
-          700: '#7D6114',  // bronze sombre
+          50: '#F7F8FB',   // brume ivoire (fond clair)
+          100: '#EAEEF5',  // bleu brume
+          200: '#D5DDEA',  // bleu sable (bordures claires)
+          300: '#A9BAD4',  // marine pâle (texte secondaire sombre)
+          400: '#5D7BAB',  // marine clair
+          500: '#2C4A7C',  // marine médian
+          600: '#1E3055',  // marine Torcol (contraste AA sur clair)
+          700: '#14213C',  // marine profond
+        },
+        cuivre: {
+          100: '#F7E8D8',  // cuivre nacré
+          200: '#EBC9A4',  // cuivre pâle
+          300: '#DFA76B',  // cuivre clair
+          400: '#C77B3D',  // cuivre vif (accent sombre)
+          500: '#C2762E',  // cuivre signature
+          600: '#A65F1E',  // cuivre profond
+          700: '#7C4614',  // bronze sombre
         },
         sombre: {
-          fond: '#050505',                      // obsidienne
-          surface: '#0D0B14',                   // minuit cosmos
-          surface2: '#16131F',                  // minuit relevé
+          fond: '#0A1122',                      // encre marine
+          surface: '#101A30',                   // marine nuit
+          surface2: '#18233D',                  // marine nuit relevé
           bordure: 'rgba(255,255,255,0.10)',    // arête de verre
         },
         // ── Alias de tokens (shadcn-like) → palette via CSS vars ──
@@ -45,21 +54,21 @@ export default {
         },
       },
       fontFamily: {
-        sans: ['"IBM Plex Sans"', '"Segoe UI"', 'system-ui', 'sans-serif'],
+        sans: ['Poppins', '"Segoe UI"', 'system-ui', 'sans-serif'],
       },
       boxShadow: {
-        // Noms conservés — valeurs "verre" : halo or discret + profondeur obsidienne
+        // Noms conservés — valeurs "verre" : halo cuivre discret + profondeur marine
         ambre: '0 8px 32px rgba(0,0,0,0.35), inset 0 1px 1px rgba(255,255,255,0.12)',
         'ambre-lg':
-          '0 24px 48px -12px rgba(0,0,0,0.55), 0 0 40px rgba(212,175,55,0.10), inset 0 1px 1px rgba(255,255,255,0.18)',
+          '0 24px 48px -12px rgba(0,0,0,0.55), 0 0 40px rgba(199,123,61,0.12), inset 0 1px 1px rgba(255,255,255,0.18)',
         verre: 'inset 0 1px 1px rgba(255,255,255,0.15), 0 16px 40px -12px rgba(0,0,0,0.45)',
       },
       backgroundImage: {
-        degrade: 'linear-gradient(135deg, #E6D9A8, #D4AF37, #A9841C)',
-        'degrade-anime': 'linear-gradient(270deg, #DCC470, #D4AF37, #A9841C, #C9A227)',
-        // Fond aurore : obsidienne traversée d'un halo or très discret
+        degrade: 'linear-gradient(135deg, #DFA76B, #C2762E, #A65F1E)',
+        'degrade-anime': 'linear-gradient(270deg, #DFA76B, #C2762E, #A65F1E, #C77B3D)',
+        // Fond aurore : encre marine traversée d'un halo cuivre très discret
         'aurore-obsidienne':
-          'radial-gradient(1200px 600px at 70% -10%, rgba(212,175,55,0.10), transparent 60%), radial-gradient(900px 500px at 10% 110%, rgba(120,100,255,0.06), transparent 60%), linear-gradient(160deg, #050505, #0D0B14)',
+          'radial-gradient(1200px 600px at 70% -10%, rgba(199,123,61,0.14), transparent 60%), radial-gradient(900px 500px at 10% 110%, rgba(93,123,171,0.10), transparent 60%), linear-gradient(160deg, #0A1122, #101A30)',
       },
       keyframes: {
         'degrade-mouvant': {
