@@ -18,7 +18,6 @@ import Profil from './pages/Profil';
 import PaiementPaypal from './pages/PaiementPaypal';
 import Calendrier from './pages/Calendrier';
 import Admin from './pages/Admin';
-import Bienvenue from './pages/Bienvenue';
 import HeroBanque from './components/HeroBanque';
 
 function Prive({ children, adminSeul = false }) {
@@ -37,7 +36,8 @@ function AccueilOuTableau() {
 export default function App() {
   return (
     <Routes>
-      <Route path="/bienvenue" element={<Bienvenue />} />
+      {/* L'ancienne page PixelHero est retirée : la Lamp (HeroBanque) est l'unique vitrine */}
+      <Route path="/bienvenue" element={<Navigate to="/" replace />} />
       <Route path="/connexion" element={<Connexion />} />
       <Route path="/inscription" element={<Inscription />} />
       <Route path="/" element={<AccueilOuTableau />} />
