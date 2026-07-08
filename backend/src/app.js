@@ -63,6 +63,7 @@ app.use('/api/paypal', require('./routes/paypal.routes'));
 app.use('/api/budgets', require('./routes/budgets.routes'));
 app.use('/api', require('./routes/divers.routes'));
 app.use('/api/admin', require('./routes/admin.routes'));
+app.use('/api/cron', require('./routes/cron.routes'));
 
 /* ─── 404 pour les routes /api inconnues ─────────────────── */
 // On garde le 404 JSON UNIQUEMENT pour les routes /api/*.
@@ -70,7 +71,10 @@ app.use('/api/admin', require('./routes/admin.routes'));
 app.use('/api', (req, res) => res.status(404).json({ message: 'Route API introuvable' }));
 
 /* ─── Frontend en production ─────────────────────────────── */
-if (isProd) {
+// Sur Vercel, le frontend est déployé séparément en statique (voir vercel.json) :
+// cette fonction serverless ne sert QUE l'API. Sur Railway/Render/local en
+// production classique (un seul process Express), on sert aussi le build React.
+if (isProd && !process.env.VERCEL) {
   const frontendDist = path.join(__dirname, '..', '..', 'frontend', 'dist');
 
   // 1. Sert les fichiers statiques (JS, CSS, images…) générés par Vite

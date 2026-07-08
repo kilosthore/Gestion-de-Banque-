@@ -15,6 +15,10 @@ const sequelize = new Sequelize(
     port: Number(process.env.DB_PORT) || 3306,
     dialect: 'mysql',
     logging: false,
+    // Pool restreint : en serverless (Vercel), chaque instance de fonction peut
+    // ouvrir ses propres connexions — un pool large épuiserait vite la limite
+    // de connexions de la base cloud (souvent 10-20 sur les offres gratuites).
+    pool: { max: 3, min: 0, idle: 10000, acquire: 30000 },
   }
 );
 
