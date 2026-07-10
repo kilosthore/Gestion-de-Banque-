@@ -264,8 +264,8 @@ router.get('/comparaison-depenses', async (req, res) => {
 
   const lignes = await Transaction.findAll({
     attributes: [
-      [fn('YEAR', col('date')), 'annee'],
-      [fn('MONTH', col('date')), 'mois'],
+      [literal('EXTRACT(YEAR FROM "date")::int'), 'annee'],
+      [literal('EXTRACT(MONTH FROM "date")::int'), 'mois'],
       [fn('SUM', col('montant')), 'total'],
       [fn('COUNT', col('_id')), 'nombre'],
     ],
@@ -273,7 +273,7 @@ router.get('/comparaison-depenses', async (req, res) => {
       client: req.user._id, sens: 'debit', statut: 'executee',
       date: { [Op.gte]: debut },
     },
-    group: [literal('YEAR(`date`)'), literal('MONTH(`date`)')],
+    group: [literal('EXTRACT(YEAR FROM "date")'), literal('EXTRACT(MONTH FROM "date")')],
     order: [literal('annee ASC'), literal('mois ASC')],
     raw: true,
   });

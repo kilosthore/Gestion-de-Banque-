@@ -33,7 +33,7 @@ const User = sequelize.define('User', {
     defaultValue: 'actif',
   },
   numeroDossier: { type: DataTypes.STRING, allowNull: true, unique: true },
-  donneesInscription: { type: DataTypes.JSON, allowNull: true }, // payload complet du wizard pour audit
+  donneesInscription: { type: DataTypes.JSONB, allowNull: true }, // payload complet du wizard pour audit
 }, {
   tableName: 'users', timestamps: false,
   defaultScope: { attributes: { exclude: ['motDePasseHache'] } },
@@ -221,7 +221,7 @@ const AuditLog = sequelize.define('AuditLog', {
   action: { type: DataTypes.STRING(80), allowNull: false }, // ex: 'auth.login', 'virement.interne'
   ipAddress: { type: DataTypes.STRING(45), allowNull: true }, // IPv6 max 45 chars
   userAgent: { type: DataTypes.STRING(500), allowNull: true },
-  payload: { type: DataTypes.JSON, allowNull: true }, // contexte (sans secrets)
+  payload: { type: DataTypes.JSONB, allowNull: true }, // contexte (sans secrets)
   hashPrecedent: { type: DataTypes.STRING(64), allowNull: true }, // 'GENESE' pour la 1re entrée chaînée
   empreinte: { type: DataTypes.STRING(64), allowNull: true },     // SHA-256 de cette entrée
   createdAt: { type: DataTypes.DATE(3), defaultValue: DataTypes.NOW }, // ms conservées (incluses dans le hash)
