@@ -59,7 +59,22 @@ function auditLog(action) {
 }
 
 /** Écrit une entrée d'audit chaînée au précédent hash (sérialisé par verrou). */
-async function ecrireEntreeChainee(champs) {
+async function ecrireEntreeChainee(champs, retenter = true) {
+  try {
+    await ecrireEntreeChaineeTx(champs);
+  } catch (err) {
+    // Course sur la genèse : deux transactions concurrentes voient la table
+    // vide, la seconde échoue en unique sur le create. Sous Postgres la
+    // transaction est alors avortée — on la rejoue entière : au second
+    // passage le findByPk verrouillé trouve la ligne créée par la gagnante.
+    if (retenter && err.name === 'SequelizeUniqueConstraintError') {
+      return ecrireEntreeChainee(champs, false);
+    }
+    throw err;
+  }
+}
+
+async function ecrireEntreeChaineeTx(champs) {
   await sequelize.transaction(async (t) => {
     // Verrou exclusif sur l'état de la chaîne : sérialise les écritures
     let etat = await AuditChainState.findByPk(1, { lock: t.LOCK.UPDATE, transaction: t });
