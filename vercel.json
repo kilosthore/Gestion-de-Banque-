@@ -10,6 +10,6 @@
     { "src": "/(.*)", "dest": "frontend/index.html" }
   ],
   "crons": [
-    { "path": "/api/cron/taches-planifiees", "schedule": "0 * * * *" }
+    { "path": "/api/cron/taches-planifiees", "schedule": "0 6 * * *" }
   ]
 }

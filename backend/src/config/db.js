@@ -1,4 +1,8 @@
 const { Sequelize } = require('sequelize');
+// require explicite : Sequelize charge pg dynamiquement, ce qui échappe au
+// tracing statique du bundler Vercel — sans ceci, « Please install pg
+// package manually » en production.
+const pg = require('pg');
 
 const estTest = process.env.NODE_ENV === 'test';
 const DB_NAME = estTest
@@ -16,6 +20,7 @@ const sequelize = new Sequelize(
     // la connexion directe (5432) sature vite la limite de connexions.
     port: Number(process.env.DB_PORT) || 6543,
     dialect: 'postgres',
+    dialectModule: pg,
     logging: false,
     dialectOptions: {
       ssl: { require: true, rejectUnauthorized: false },
