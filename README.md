@@ -5,9 +5,12 @@
 
   *« Prenez de la hauteur. »*
 
-  Application bancaire complète (simulation) : comptes, virements, paiements,
-  épargne, prêts, carte de crédit, notifications et administration — avec
-  authentification 2FA, audit trail et intégrité comptable garantie.
+  Application bancaire complète (simulation) : comptes, virements, paiements
+  (dont PayPal), épargne, prêts, carte de crédit, budgets, calendrier des
+  opérations récurrentes, notifications et administration — avec authentification
+  2FA, journal d'audit à intégrité vérifiable et invariant comptable garanti.
+
+  <sub>Stack : React + Vite · Express · Supabase Postgres · déployé sur Vercel</sub>
 </div>
 
 ---
@@ -22,21 +25,24 @@
 6. [Lancer le projet](#lancer-le-projet)
 7. [Comptes de démonstration](#comptes-de-démonstration)
 8. [Tester le projet](#tester-le-projet)
-9. [Structure du projet](#structure-du-projet)
-10. [Sécurité](#sécurité)
-11. [Documentation et livrables](#documentation-et-livrables)
+9. [Déploiement (Vercel)](#déploiement-vercel)
+10. [Structure du projet](#structure-du-projet)
+11. [Sécurité](#sécurité)
+12. [Documentation et livrables](#documentation-et-livrables)
 
 ## Fonctionnalités
 
 | Domaine | Détail |
 |---|---|
-| **Profils & authentification** | Inscription simple ou wizard KYC 6 étapes, connexion 2FA (email + OTP 6 chiffres), rôles client/administrateur |
-| **Comptes** | Multi-comptes (chèque, épargne, carte de crédit, prêt), soldes en temps réel, détail par compte |
-| **Opérations** | Virement interne atomique, Interac, paiement de factures, dépôt/retrait, dépôt de chèque par photo |
+| **Profils & authentification** | Inscription simple ou wizard KYC 6 étapes, connexion 2FA (email + OTP 6 chiffres), rôles client/administrateur, mot de passe temporaire à changer à la première connexion |
+| **Comptes** | Multi-comptes (chèque, épargne, carte de crédit, prêt, investissement), soldes en temps réel, détail et transactions par compte |
+| **Opérations** | Virement interne atomique, Interac, paiement de factures, dépôt/retrait, dépôt de chèque par photo, achat et paiement de carte de crédit |
+| **Paiements PayPal** | Alimentation d'un compte via PayPal (intégration dédiée, traçabilité des paiements) |
 | **Historique & relevés** | Recherche/filtres, relevé mensuel par catégorie, comparaison des dépenses (graphique 6 mois) |
-| **Épargne & budgets** | Objectifs d'épargne avec progression, budgets intelligents, transactions récurrentes (calendrier) |
+| **Épargne & budgets** | Objectifs d'épargne avec progression, budgets par catégorie avec alertes de dépassement |
+| **Calendrier** | Transactions récurrentes (hebdomadaires/mensuelles) exécutées automatiquement par tâche planifiée quotidienne |
 | **Notifications** | Solde faible (seuil configurable), alertes fraude, verrouillage de compte |
-| **Administration** | Validation des dossiers KYC, approbation des prêts, paramètres globaux, réinitialisation de profil |
+| **Administration** | Validation des dossiers KYC, approbation des prêts, paramètres globaux (limites métier), consultation et vérification du journal d'audit |
 | **RGPD** | Export des données (art. 20), suppression avec anonymisation comptable (art. 17) |
 
 ## Stack technique
@@ -45,17 +51,19 @@
 |---|---|
 | Frontend | React 18, Vite, React Router, Tailwind CSS, Framer Motion, Recharts |
 | Backend | Node.js, Express, JWT, bcrypt, Helmet, ajv (JSON Schema), Nodemailer |
-| Base de données | MySQL/MariaDB (XAMPP) via Sequelize |
+| Base de données | **Supabase Postgres** via Sequelize (connexion poolée PgBouncer, SSL) |
+| Déploiement | **Vercel** — SPA statique + fonctions serverless + cron quotidien |
 | Outils | Jira (suivi Scrum), Git/GitHub, Astah UML, Jest + Supertest |
 
-Architecture **3-tiers** : SPA React → API REST Express → MySQL.
+Architecture **3-tiers** : SPA React → API REST Express → Postgres.
 Voir le [cahier de conception](docs/) pour les diagrammes (classes, séquence, cas d'utilisation).
 
 ## Prérequis
 
 - **Node.js 18+** et npm
-- **XAMPP** (ou toute instance MySQL/MariaDB sur le port 3306) — démarrer **MySQL** depuis le panneau XAMPP avant de lancer le backend
-- La base de données est **créée automatiquement** au premier démarrage (`CREATE DATABASE IF NOT EXISTS banque`) — aucune commande SQL manuelle
+- Une base **PostgreSQL** — le plus simple est un projet gratuit [Supabase](https://supabase.com).
+  Récupérer la chaîne de connexion **du pooler** (port `6543`, mode session).
+- Les tables sont **créées automatiquement** au premier démarrage (`sequelize.sync()`) — aucune migration SQL manuelle.
 
 ## Installation
 
@@ -67,27 +75,42 @@ npm run install:all        # installe backend + frontend
 
 ## Configuration
 
-Créer `backend/.env` (les valeurs par défaut conviennent pour un poste de dev XAMPP standard) :
+Créer `backend/.env` à partir de `backend/.env.example` et renseigner l'accès Postgres :
 
 ```env
-# Base de données (défauts : 127.0.0.1:3306, root sans mot de passe)
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_NAME=banque
-DB_NAME_TEST=banque_test
-DB_USER=root
-DB_PASS=
+# Base de données Postgres (Supabase : utiliser le POOLER, port 6543)
+DB_HOST=aws-0-<region>.pooler.supabase.com
+DB_PORT=6543
+DB_NAME=postgres
+DB_NAME_TEST=postgres            # base de test (isolée)
+DB_USER=postgres.<ref-projet>    # rôle poolé Supabase
+DB_PASS=<mot_de_passe_base>
 
-# Authentification
+# Applique les évolutions de schéma (ALTER) — à activer UNE fois après un
+# changement de modèle, puis remettre à vide. Ne pas laisser actif en continu.
+DB_SYNC_ALTER=
+
+# Sécurité JWT — générer une clé unique par environnement : openssl rand -base64 48
 JWT_SECRET=change-moi-en-production
 JWT_EXPIRES=30m
-PORT=5000
+TEMP_TOKEN_EXPIRES=5m
 
-# Email OTP (optionnel — sans SMTP, le code s'affiche à l'écran en mode démo)
-SMTP_HOST=
-SMTP_PORT=
+# Serveur
+PORT=5000
+CLIENT_URL=http://localhost:5173
+# NODE_ENV=production           # en prod : trust proxy, pas de mode démo OTP, erreurs masquées
+
+# Mot de passe admin créé par le seed (sinon généré et affiché une seule fois)
+ADMIN_PASSWORD=
+
+# Email OTP (obligatoire en production — Gmail : mot de passe d'application)
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=465
 SMTP_USER=
 SMTP_PASS=
+
+# true = le code OTP est renvoyé dans la réponse API (démo). Ignoré si NODE_ENV=production.
+DEMO_OTP=true
 ```
 
 Puis initialiser les données (admin, paramètres globaux, produits financiers) :
@@ -133,31 +156,45 @@ bancaires, les alertes fraude, les budgets, le verrouillage et **la concurrence*
 (virements parallèles → l'invariant comptable est préservé).
 
 ```bash
-# MySQL/XAMPP doit être démarré (utilise la base banque_test, isolée)
+# Renseigner DB_NAME_TEST (base Postgres isolée) dans backend/.env
 cd backend
 npm test
 ```
+
+## Déploiement (Vercel)
+
+Le dépôt est prêt pour un déploiement **Vercel** (voir [`vercel.json`](vercel.json)) :
+
+- Le frontend est buildé en statique (`@vercel/static-build`, `frontend/dist`).
+- L'API Express est servie en fonction serverless via [`backend/api/index.js`](backend/api/index.js) (`@vercel/node`) ; toutes les routes `/api/*` y sont routées.
+- Un **cron quotidien** (`0 6 * * *`) appelle `/api/cron/taches-planifiees` pour exécuter les transactions récurrentes du calendrier.
+
+Définir toutes les variables d'environnement ci-dessus dans **Project Settings → Environment Variables** (utiliser la chaîne de connexion **poolée** de Supabase, port `6543`, indispensable en serverless).
+
+> ⚠️ Ne jamais committer de fichier `.env*` : ils sont ignorés par `.gitignore`.
 
 ## Structure du projet
 
 ```
 ├── backend/
+│   ├── api/index.js              # Point d'entrée serverless Vercel (enveloppe l'app Express)
 │   ├── src/
-│   │   ├── config/db.js          # Connexion Sequelize + création auto de la base
-│   │   ├── models/               # User, Compte, Transaction, ObjectifEpargne…
-│   │   ├── routes/               # auth, comptes, transactions, admin, dashboard…
+│   │   ├── config/db.js          # Connexion Sequelize Postgres (pooler + SSL) + sync auto
+│   │   ├── models/               # User, Compte, Transaction, ObjectifEpargne, PaiementPaypal, AuditLog…
+│   │   ├── routes/               # auth, comptes, transactions, budgets, prets, paypal, cron, admin, dashboard
 │   │   ├── middleware/           # protect (JWT), adminOnly, auditLog, rate limit
-│   │   └── utils/                # mailer (OTP), seed
+│   │   └── utils/                # mailer (OTP), seed, catégorisation, budget, fraude, récurrence, paypal
 │   └── tests/                    # Jest + Supertest
 ├── frontend/
 │   ├── src/
-│   │   ├── pages/                # TableauDeBord, Comptes, Operations, Admin…
+│   │   ├── pages/                # TableauDeBord, Comptes, Operations, Prets, PaiementPaypal, Calendrier, Admin…
 │   │   ├── components/           # Layout, dashboard/, inscription/, ui/ (lamp, fond animé)
 │   │   ├── styles/theme.css      # Thème « Marine & Cuivre » (tokens Tailwind)
 │   │   ├── assets/               # Logos TorcolBank (SVG)
 │   │   └── i18n/                 # Traductions FR/EN
 │   └── tailwind.config.js        # Design tokens (palette marine #1E3055 / cuivre #C2762E)
-└── docs/                         # PRD, diagramme de cas d'utilisation (Astah)
+├── docs/                         # PRD, diagramme de cas d'utilisation (Astah)
+└── vercel.json                   # Builds, routes API/SPA et cron quotidien
 ```
 
 ## Sécurité
@@ -168,7 +205,8 @@ npm test
 - **Anti-force brute** : rate limiting + verrouillage après 5 échecs
 - **Intégrité comptable** : transactions Sequelize atomiques, `LOCK.UPDATE`,
   tri anti-deadlock — prouvé par test de concurrence
-- **Audit trail** : IP, user-agent, statut et payload nettoyé pour chaque action sensible
+- **Audit trail chaîné** : chaque entrée porte le SHA-256 de la précédente ;
+  toute altération casse la chaîne et devient détectable via `/admin/audit`
 
 Détails : [SECURITE-DEPLOIEMENT.md](SECURITE-DEPLOIEMENT.md)
 
