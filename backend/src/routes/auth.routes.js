@@ -8,6 +8,7 @@ const { sequelize, User, Otp, Compte, RevokedToken, Notification } = require('..
 const { envoyerOtp, smtpConfigure } = require('../utils/mailer');
 const { protect } = require('../middleware/auth');
 const { auditLog } = require('../middleware/audit');
+const { ouvrirComptesInitiaux } = require('../utils/comptes');
 const schemaInscription = require('../schemas/inscription-bancaire.json');
 
 // Compile la validation JSON Schema une seule fois au démarrage
@@ -68,13 +69,14 @@ router.post('/register', limiteurAuth, auditLog('inscription.simple'), async (re
     if (await User.findOne({ where: { email } })) {
       return res.status(409).json({ message: 'Un compte existe déjà avec cet email' });
     }
-    const user = await User.create({
-      nom, prenom, email: email.toLowerCase(),
-      motDePasseHache: await User.hacher(motDePasse),
-    });
-    // Compte chèque ouvert automatiquement avec 500 $ de démonstration
-    await Compte.create({
-      proprietaire: user._id, numero: Compte.genererNumero(), type: 'cheque', solde: 500,
+    // Atomique : User + comptes initiaux (chèque 500 $ + épargne 0 $) naissent ensemble
+    const user = await sequelize.transaction(async (t) => {
+      const nouveau = await User.create({
+        nom, prenom, email: email.toLowerCase(),
+        motDePasseHache: await User.hacher(motDePasse),
+      }, { transaction: t });
+      await ouvrirComptesInitiaux(nouveau._id, { transaction: t });
+      return nouveau;
     });
     res.status(201).json({ message: 'Profil créé. Vous pouvez vous connecter.', user: publicUser(user) });
   } catch (e) {

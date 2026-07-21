@@ -6,6 +6,7 @@ const {
 const { protect, adminOnly } = require('../middleware/auth');
 const { auditLog, verifierChaine } = require('../middleware/audit');
 const { envoyerMdpTemporaire, smtpConfigure } = require('../utils/mailer');
+const { ouvrirComptesInitiaux } = require('../utils/comptes');
 
 router.use(protect, adminOnly);
 
@@ -191,7 +192,7 @@ router.put('/dossiers/:id', auditLog('admin.dossier_decision'), async (req, res)
       return res.status(400).json({ message: 'Statut invalide : actif ou rejete' });
     }
 
-    const { user, compte } = await sequelize.transaction(async (t) => {
+    const { user, compte, compteEpargne } = await sequelize.transaction(async (t) => {
       const user = await User.findOne({
         where: { _id: req.params.id },
         lock: t.LOCK.UPDATE, transaction: t,
@@ -202,13 +203,12 @@ router.put('/dossiers/:id', auditLog('admin.dossier_decision'), async (req, res)
       }
 
       let compte = null;
+      let compteEpargne = null;
       if (statut === 'actif') {
-        compte = await Compte.create({
-          proprietaire: user._id,
-          numero: Compte.genererNumero(),
-          type: 'cheque',
-          solde: 500, // bonus de bienvenue (cohérent avec /register simple)
-        }, { transaction: t });
+        // Comptes initiaux du client : chèque (500 $ de bienvenue) + épargne (0 $)
+        ({ cheque: compte, epargne: compteEpargne } = await ouvrirComptesInitiaux(
+          user._id, { transaction: t },
+        ));
       }
 
       await user.update({ statutDossier: statut }, { transaction: t });
@@ -218,10 +218,10 @@ router.put('/dossiers/:id', auditLog('admin.dossier_decision'), async (req, res)
         : `❌ Votre dossier ${user.numeroDossier} a été rejeté.${commentaire ? ` Motif : ${commentaire}` : ''}`;
       await Notification.envoyer(user._id, message);
 
-      return { user, compte };
+      return { user, compte, compteEpargne };
     });
 
-    res.json({ message: `Dossier ${statut === 'actif' ? 'validé' : 'rejeté'}`, user, compte });
+    res.json({ message: `Dossier ${statut === 'actif' ? 'validé' : 'rejeté'}`, user, compte, compteEpargne });
   } catch (e) {
     res.status(400).json({ message: e.message });
   }
