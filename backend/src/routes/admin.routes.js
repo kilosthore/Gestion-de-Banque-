@@ -69,7 +69,12 @@ router.post('/clients/:id/reinitialiser', auditLog('admin.reinit_client'), async
     'Votre profil a été réinitialisé par un administrateur. Connectez-vous avec le code temporaire à 6 chiffres reçu, puis choisissez un nouveau mot de passe.'
   );
 
-  const demo = process.env.NODE_ENV !== 'production' && !smtpConfigure();
+  // Même règle « mode démo » que l'OTP de connexion (auth.routes.js) : une seule
+  // définition pour toute l'app, sinon un flux expose le secret et l'autre non
+  // selon le .env du poste. La garde NODE_ENV reste la barrière dure — en prod,
+  // ni DEMO_OTP=true ni l'absence de SMTP ne peuvent divulguer le code.
+  const demo = process.env.NODE_ENV !== 'production' &&
+    (process.env.DEMO_OTP === 'true' || !smtpConfigure());
   res.json({
     message: smtpConfigure()
       ? `Profil réinitialisé. Code temporaire à 6 chiffres envoyé à ${client.email}. Le client devra choisir un nouveau mot de passe à sa prochaine connexion.`

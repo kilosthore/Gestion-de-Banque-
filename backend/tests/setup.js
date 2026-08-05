@@ -4,6 +4,15 @@ process.env.JWT_SECRET = process.env.JWT_SECRET || 'secret_de_test_uniquement';
 process.env.DEMO_OTP = 'true';
 require('dotenv').config();
 
+// SMTP neutralisé APRÈS dotenv : sinon `.config()` repeuple les clés supprimées
+// (il n'écrase pas l'existant, mais il renseigne ce qui manque). Sans ceci, une
+// machine dont le .env porte de vraies clés Gmail envoie de vrais emails à
+// chaque `npm test` — et `smtpConfigure()` fait diverger le mode démo, donc les
+// tests dépendent du .env du poste au lieu du seul code.
+delete process.env.SMTP_HOST;
+delete process.env.SMTP_USER;
+delete process.env.SMTP_PASS;
+
 const { sequelize, connectDB } = require('../src/config/db');
 
 async function ouvrirBase() {
