@@ -10,6 +10,7 @@ import Operations from './pages/Operations';
 import Historique from './pages/Historique';
 import Contacts from './pages/Contacts';
 import Objectifs from './pages/Objectifs';
+import Budgets from './pages/Budgets';
 import Produits from './pages/Produits';
 import Notifications from './pages/Notifications';
 import Prets from './pages/Prets';
@@ -17,7 +18,6 @@ import Profil from './pages/Profil';
 import PaiementPaypal from './pages/PaiementPaypal';
 import Calendrier from './pages/Calendrier';
 import Admin from './pages/Admin';
-import Bienvenue from './pages/Bienvenue';
 import HeroBanque from './components/HeroBanque';
 
 function Prive({ children, adminSeul = false }) {
@@ -36,7 +36,8 @@ function AccueilOuTableau() {
 export default function App() {
   return (
     <Routes>
-      <Route path="/bienvenue" element={<Bienvenue />} />
+      {/* L'ancienne page PixelHero est retirée : la Lamp (HeroBanque) est l'unique vitrine */}
+      <Route path="/bienvenue" element={<Navigate to="/" replace />} />
       <Route path="/connexion" element={<Connexion />} />
       <Route path="/inscription" element={<Inscription />} />
       <Route path="/" element={<AccueilOuTableau />} />
@@ -47,6 +48,7 @@ export default function App() {
       <Route path="/calendrier" element={<Prive><Calendrier /></Prive>} />
       <Route path="/contacts" element={<Prive><Contacts /></Prive>} />
       <Route path="/objectifs" element={<Prive><Objectifs /></Prive>} />
+      <Route path="/budgets" element={<Prive><Budgets /></Prive>} />
       <Route path="/produits" element={<Prive><Produits /></Prive>} />
       <Route path="/notifications" element={<Prive><Notifications /></Prive>} />
       <Route path="/prets" element={<Prive><Prets /></Prive>} />

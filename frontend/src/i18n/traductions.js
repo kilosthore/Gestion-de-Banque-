@@ -4,23 +4,15 @@
  */
 export const traductions = {
   fr: {
-    bienvenue: 'BIENVENUE',
-    alaBanque: 'à la banque',
+    slogan: 'Prenez de la hauteur.',
     seConnecter: 'Se connecter',
-    modeClair: 'Clair',
-    modeSombre: 'Sombre',
-    langue: 'Langue',
-    basculerTheme: 'Basculer le thème',
+    creerCompte: 'Créer un compte',
     changerLangue: 'Changer la langue',
   },
   en: {
-    bienvenue: 'WELCOME',
-    alaBanque: 'to the bank',
+    slogan: 'Rise above.',
     seConnecter: 'Sign in',
-    modeClair: 'Light',
-    modeSombre: 'Dark',
-    langue: 'Language',
-    basculerTheme: 'Toggle theme',
+    creerCompte: 'Open an account',
     changerLangue: 'Change language',
   },
 };

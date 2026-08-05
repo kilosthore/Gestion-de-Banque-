@@ -3,30 +3,48 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   Home, CreditCard, ArrowLeftRight, History, Users, PiggyBank, Coins,
-  TrendingUp, Bell, User, Wrench, Wallet, Moon, Sun, LogOut, CalendarDays,
+  TrendingUp, Bell, User, Wrench, Wallet, Moon, Sun, LogOut, CalendarDays, PieChart,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { entreeCascade } from '../lib/animations';
 import { api } from '../api/client';
 import { Dock } from './ui/dock-two';
 import { PopoverProfil } from './ui/popover-profil';
+import FondAnime from './ui/background-paths';
+import marqueClaire from '../assets/torcolbank-mark.svg';
+import marqueSombre from '../assets/torcolbank-mark-sombre.svg';
 
 export default function Layout({ children }) {
   const { user, deconnecter, theme, setTheme } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [nonLues, setNonLues] = useState(0);
 
+  // Cascade d'entrée des cartes (anime.js) à chaque changement de page
   useEffect(() => {
-    if (user?.role !== 'client') return;
-    api.get('/notifications')
-      .then((d) => setNonLues(d.notifications.filter((n) => !n.lue).length))
-      .catch(() => {});
-  }, [user]);
+    const id = requestAnimationFrame(() => entreeCascade(document.querySelector('.contenu')));
+    return () => cancelAnimationFrame(id);
+  }, [location.pathname]);
+
+  // Alertes quasi temps réel : admins compris (alertes fraude/verrouillage),
+  // rafraîchies toutes les 30 s sans bloquer la navigation.
+  useEffect(() => {
+    if (!user) return;
+    const rafraichir = () =>
+      api.get('/notifications')
+        .then((d) => setNonLues(d.notifications.filter((n) => !n.lue).length))
+        .catch(() => {});
+    rafraichir();
+    const intervalle = setInterval(rafraichir, 30000);
+    return () => clearInterval(intervalle);
+  }, [user, location.pathname]);
 
   const sortir = () => { deconnecter(); navigate('/connexion'); };
 
   const liens = user?.role === 'admin'
     ? [
         ['/admin', Wrench, 'Administration'],
+        ['/notifications', Bell, 'Notifications'], // alertes fraude + verrouillages
         ['/profil', User, 'Mon profil'],
       ]
     : [
@@ -37,6 +55,7 @@ export default function Layout({ children }) {
         ['/calendrier', CalendarDays, 'Calendrier'],
         ['/contacts', Users, 'Bénéficiaires'],
         ['/objectifs', PiggyBank, 'Épargne'],
+        ['/budgets', PieChart, 'Budgets'],
         ['/prets', Coins, 'Prêts'],
         ['/produits', TrendingUp, 'Produits'],
         ['/paypal', Wallet, 'PayPal'],
@@ -47,6 +66,7 @@ export default function Layout({ children }) {
   const itemsDock = user?.role === 'admin'
     ? [
         { icon: Wrench, label: 'Administration', onClick: () => navigate('/admin') },
+        { icon: Bell, label: 'Notifications', onClick: () => navigate('/notifications'), badge: nonLues },
         { icon: User, label: 'Mon profil', onClick: () => navigate('/profil') },
       ]
     : [
@@ -55,6 +75,7 @@ export default function Layout({ children }) {
         { icon: ArrowLeftRight, label: 'Opérations', onClick: () => navigate('/operations') },
         { icon: History, label: 'Historique', onClick: () => navigate('/historique') },
         { icon: CalendarDays, label: 'Calendrier', onClick: () => navigate('/calendrier') },
+        { icon: PieChart, label: 'Budgets', onClick: () => navigate('/budgets') },
         { icon: Wallet, label: 'PayPal', onClick: () => navigate('/paypal') },
         { icon: Bell, label: 'Notifications', onClick: () => navigate('/notifications'), badge: nonLues },
         { icon: User, label: 'Mon profil', onClick: () => navigate('/profil') },
@@ -62,9 +83,17 @@ export default function Layout({ children }) {
 
   return (
     <div className="app">
+      {/* Fond animé (rubans marine/cuivre) derrière tout le contenu */}
+      <FondAnime className="-z-10" />
       <aside className="sidebar">
         <div className="flex items-center justify-between w-full gap-2">
-          <div className="logo">🏦 Ma Banque</div>
+          <div className="logo flex items-center gap-2">
+            <img
+              src={theme === 'sombre' ? marqueSombre : marqueClaire}
+              alt="" className="w-6 h-6 shrink-0" aria-hidden="true"
+            />
+            TorcolBank
+          </div>
           <PopoverProfil user={user} onVoirProfil={() => navigate('/profil')} onDeconnexion={sortir} />
         </div>
         {liens.map(([chemin, Icone, libelle]) => (

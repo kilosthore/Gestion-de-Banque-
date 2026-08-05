@@ -133,7 +133,7 @@ export default function Admin() {
                     <br /><small>Dossier <code>{d.numeroDossier}</code></small>
                   </div>
                   <span className="badge" style={{
-                    background: d.statutDossier === 'rejete' ? '#ef4444' : '#f59e0b',
+                    background: d.statutDossier === 'rejete' ? '#ef4444' : '#C2762E',
                     color: 'white',
                   }}>
                     {d.statutDossier === 'rejete'
@@ -176,7 +176,7 @@ export default function Admin() {
                   <span>{d.montant.toFixed(2)} $ sur {d.duree} mois</span>
                 </div>
                 <span className="badge" style={{
-                  background: d.statut === 'approuvee' ? '#10b981' : d.statut === 'refusee' ? '#ef4444' : '#f59e0b',
+                  background: d.statut === 'approuvee' ? '#10b981' : d.statut === 'refusee' ? '#ef4444' : '#C2762E',
                   color: 'white',
                 }}>
                   {d.statut === 'en_attente'
@@ -217,7 +217,7 @@ export default function Admin() {
             <div key={c._id} className="flex justify-between items-center py-2.5 border-t border-primaire-200 dark:border-sombre-bordure">
               <div>
                 <b>{c.prenom} {c.nom}</b><br />
-                <small className="text-amber-700 dark:text-primaire-400">{c.email}</small>
+                <small className="text-slate-600 dark:text-primaire-400">{c.email}</small>
               </div>
               <IconeAction icon={RotateCcw} label="Réinitialiser le profil" variante="neutre"
                 testId={`reinitialiser-${c._id}`} onClick={() => reinitialiser(c._id, c.nom)} />

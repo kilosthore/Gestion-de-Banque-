@@ -23,6 +23,9 @@ const User = sequelize.define('User', {
   dateCreation: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
   echecsConnexion: { type: DataTypes.INTEGER, defaultValue: 0 },
   verrouJusqua: { type: DataTypes.DATE, allowNull: true },
+  // Mot de passe temporaire délivré par l'admin (6 chiffres) : l'utilisateur
+  // doit obligatoirement le remplacer à sa première connexion réussie.
+  doitChangerMotDePasse: { type: DataTypes.BOOLEAN, defaultValue: false },
   // Workflow KYC (US-25) : inscription via /register-complet crée en 'en_verification'.
   // L'admin valide → 'actif'. L'inscription simple /register reste 'actif' direct (rétro-compat).
   statutDossier: {
@@ -30,7 +33,7 @@ const User = sequelize.define('User', {
     defaultValue: 'actif',
   },
   numeroDossier: { type: DataTypes.STRING, allowNull: true, unique: true },
-  donneesInscription: { type: DataTypes.JSON, allowNull: true }, // payload complet du wizard pour audit
+  donneesInscription: { type: DataTypes.JSONB, allowNull: true }, // payload complet du wizard pour audit
 }, {
   tableName: 'users', timestamps: false,
   defaultScope: { attributes: { exclude: ['motDePasseHache'] } },
@@ -97,6 +100,8 @@ const Transaction = sequelize.define('Transaction', {
   montant: { type: DataTypes.DOUBLE, allowNull: false },
   date: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
   description: { type: DataTypes.STRING, defaultValue: '' },
+  // Catégorie budgétaire, déduite automatiquement de la description (hook beforeCreate)
+  categorie: { type: DataTypes.STRING(30), allowNull: true },
   statut: { type: DataTypes.ENUM('executee', 'en_attente', 'planifiee', 'annulee'), defaultValue: 'executee' },
   sens: { type: DataTypes.ENUM('debit', 'credit'), allowNull: false },
   beneficiaire: { type: DataTypes.UUID, allowNull: true },
@@ -205,15 +210,21 @@ const DemandePret = sequelize.define('DemandePret', {
   commentaireDecision: { type: DataTypes.STRING(500), allowNull: true },
 }, { tableName: 'demandes_pret', timestamps: false });
 
-/* ─── AuditLog (traçabilité de toutes les actions sensibles) ─ */
+/* ─── AuditLog (traçabilité de toutes les actions sensibles) ─
+   Journal à intégrité vérifiable : chaque entrée porte le SHA-256 de la
+   précédente (hashPrecedent) + sa propre empreinte. Toute modification ou
+   suppression a posteriori casse la chaîne → détectable par /admin/audit. */
 const AuditLog = sequelize.define('AuditLog', {
   _id: pk,
+  seq: { type: DataTypes.BIGINT, autoIncrement: true, unique: true }, // ordre strict de la chaîne
   userId: { type: DataTypes.UUID, allowNull: true }, // null si action anonyme (ex: login échoué)
-  action: { type: DataTypes.STRING(80), allowNull: false }, // ex: 'login.success', 'virement.interne'
+  action: { type: DataTypes.STRING(80), allowNull: false }, // ex: 'auth.login', 'virement.interne'
   ipAddress: { type: DataTypes.STRING(45), allowNull: true }, // IPv6 max 45 chars
   userAgent: { type: DataTypes.STRING(500), allowNull: true },
-  payload: { type: DataTypes.JSON, allowNull: true }, // contexte (sans secrets)
-  createdAt: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
+  payload: { type: DataTypes.JSONB, allowNull: true }, // contexte (sans secrets)
+  hashPrecedent: { type: DataTypes.STRING(64), allowNull: true }, // 'GENESE' pour la 1re entrée chaînée
+  empreinte: { type: DataTypes.STRING(64), allowNull: true },     // SHA-256 de cette entrée
+  createdAt: { type: DataTypes.DATE(3), defaultValue: DataTypes.NOW }, // ms conservées (incluses dans le hash)
 }, {
   tableName: 'audit_logs',
   timestamps: false,
@@ -223,6 +234,14 @@ const AuditLog = sequelize.define('AuditLog', {
     { fields: ['createdAt'] },
   ],
 });
+
+/* ─── AuditChainState (ligne unique : dernier hash de la chaîne) ─
+   Verrouillée FOR UPDATE à chaque écriture d'audit pour sérialiser la chaîne
+   (deux écritures concurrentes ne peuvent pas référencer le même précédent). */
+const AuditChainState = sequelize.define('AuditChainState', {
+  _id: { type: DataTypes.INTEGER, primaryKey: true, defaultValue: 1 },
+  dernierHash: { type: DataTypes.STRING(64), allowNull: false, defaultValue: 'GENESE' },
+}, { tableName: 'audit_chain_state', timestamps: false });
 
 /* ─── RevokedToken (blacklist des JWT déconnectés) ──────── */
 const RevokedToken = sequelize.define('RevokedToken', {
@@ -264,8 +283,39 @@ Otp.prototype.verifier = function (code) {
   return bcrypt.compare(code, this.codeHache);
 };
 
+/* ─── Budget (enveloppes mensuelles par catégorie de dépenses) ─── */
+const Budget = sequelize.define('Budget', {
+  _id: pk,
+  client: { type: DataTypes.UUID, allowNull: false },
+  categorie: { type: DataTypes.STRING(30), allowNull: false },
+  plafond: { type: DataTypes.DOUBLE, allowNull: false },
+}, {
+  tableName: 'budgets',
+  timestamps: false,
+  indexes: [{ unique: true, fields: ['client', 'categorie'] }], // 1 enveloppe par catégorie
+});
+
+/* ─── Hooks Transaction : catégorisation + surveillance budget ───
+   beforeCreate : toute transaction créée (virement, dépôt, PayPal, prêt…)
+   reçoit sa catégorie budgétaire — un seul point d'entrée pour tout le code.
+   afterCreate : vérifie le dépassement d'enveloppe APRÈS le commit de la
+   transaction SQL (jamais pendant : évite les interblocages avec les verrous). */
+const { categoriser } = require('../utils/categoriser');
+Transaction.addHook('beforeCreate', (tx) => {
+  if (!tx.categorie) tx.categorie = categoriser(tx.description, tx.type, tx.sens);
+});
+Transaction.addHook('afterCreate', (tx, options) => {
+  const verifier = () => {
+    // require paresseux : budget.js dépend de ce module (évite le cycle au chargement)
+    const { surveillerBudget } = require('../utils/budget');
+    surveillerBudget(tx).catch(() => {}); // best effort : ne bloque jamais l'opération
+  };
+  if (options.transaction) options.transaction.afterCommit(verifier);
+  else setImmediate(verifier);
+});
+
 module.exports = {
   sequelize, User, Compte, Transaction, Beneficiaire, Fournisseur,
   ObjectifEpargne, Notification, ProduitFinancier, ParametresGlobaux, Otp,
-  DemandePret, AuditLog, RevokedToken,
+  DemandePret, AuditLog, AuditChainState, RevokedToken, Budget,
 };

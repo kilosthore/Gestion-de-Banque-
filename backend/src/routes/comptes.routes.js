@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const { sequelize, Compte, Transaction } = require('../models');
 const { protect } = require('../middleware/auth');
+const { auditLog } = require('../middleware/audit');
 
 router.use(protect);
 
@@ -14,7 +15,7 @@ router.get('/', async (req, res) => {
 });
 
 /* Ouvrir un nouveau compte (chèque, épargne, crédit, prêt, investissement) */
-router.post('/', async (req, res) => {
+router.post('/', auditLog('compte.ouverture'), async (req, res, next) => {
   try {
     const { type, devise } = req.body;
     if (!['cheque', 'epargne', 'credit', 'pret', 'investissement'].includes(type)) {
@@ -33,7 +34,7 @@ router.post('/', async (req, res) => {
     });
     res.status(201).json({ message: 'Compte ouvert', compte });
   } catch (e) {
-    res.status(500).json({ message: e.message });
+    next(e);
   }
 });
 
@@ -50,7 +51,7 @@ router.get('/:id', async (req, res) => {
 });
 
 /* US-18bis — Simuler un achat par carte de crédit (atomique, LOCK.UPDATE, vérifie la limite) */
-router.post('/:id/achat-carte', async (req, res) => {
+router.post('/:id/achat-carte', auditLog('carte.achat'), async (req, res) => {
   try {
     const { montant, marchand } = req.body;
     const m = Number(montant);
@@ -83,7 +84,7 @@ router.post('/:id/achat-carte', async (req, res) => {
 
 /* US-18 — Payer ma carte de crédit depuis un compte chèque/épargne
    (atomique, LOCK.UPDATE sur source ET carte, anti-deadlock via tri lexicographique) */
-router.post('/:id/payer-carte', async (req, res) => {
+router.post('/:id/payer-carte', auditLog('carte.paiement'), async (req, res) => {
   try {
     const { montant, compteSourceId } = req.body;
     const m = Number(montant);

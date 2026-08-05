@@ -209,7 +209,7 @@ export default function Operations() {
             <tbody>
               {planifiees.map((t) => (
                 <tr key={t._id}>
-                  <td>{t.description}<br /><small className="text-amber-700 dark:text-primaire-400">{t.recurrence} · prochaine : {new Date(t.prochaineDate).toLocaleDateString('fr-CA')}</small></td>
+                  <td>{t.description}<br /><small className="text-slate-600 dark:text-primaire-400">{t.recurrence} · prochaine : {new Date(t.prochaineDate).toLocaleDateString('fr-CA')}</small></td>
                   <td>{t.montant.toFixed(2)} $</td>
                   <td><button className="btn btn-danger !px-3 !py-1.5" onClick={() => annulerPlanifiee(t._id)}>Annuler</button></td>
                 </tr>

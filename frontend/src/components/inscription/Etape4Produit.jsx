@@ -4,7 +4,7 @@ export default function Etape4Produit({ data, maj, erreurs }) {
 
   return (
     <div>
-      <h2>🏦 Choix du compte</h2>
+      <h2>Choix du compte</h2>
       <p className="sous-titre">Configurez le produit bancaire qui vous correspond.</p>
 
       <label>Type de compte *</label>

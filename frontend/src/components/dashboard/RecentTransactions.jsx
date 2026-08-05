@@ -6,7 +6,7 @@ function categoriser(description = '') {
   const d = description.toLowerCase();
   if (d.includes('salaire') || d.includes('revenu')) return { libelle: 'Revenu', couleur: '#10b981' };
   if (d.includes('facture')) return { libelle: 'Facture', couleur: '#3b82f6' };
-  if (d.includes('interac')) return { libelle: 'Interac', couleur: '#f59e0b' };
+  if (d.includes('interac')) return { libelle: 'Interac', couleur: '#C2762E' };
   if (d.includes('virement')) return { libelle: 'Virement', couleur: '#8b5cf6' };
   if (d.includes('épargne') || d.includes('objectif')) return { libelle: 'Épargne', couleur: '#06b6d4' };
   if (d.includes('achat carte')) return { libelle: 'Achat carte', couleur: '#ec4899' };

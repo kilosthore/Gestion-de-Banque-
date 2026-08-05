@@ -21,7 +21,7 @@ function forceMotDePasse(mdp) {
   if (/[^A-Za-z0-9]/.test(mdp)) score++;
   if (mdp.length >= 12) score++;
   const libelles = ['Très faible', 'Faible', 'Moyen', 'Fort', 'Excellent'];
-  const couleurs = ['#ef4444', '#f97316', '#f59e0b', '#10b981', '#059669'];
+  const couleurs = ['#ef4444', '#f97316', '#C2762E', '#10b981', '#059669'];
   return { score, libelle: libelles[Math.min(score - 1, 4)] || 'Très faible', couleur: couleurs[Math.min(score - 1, 4)] || '#ef4444' };
 }
 

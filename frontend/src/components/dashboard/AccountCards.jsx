@@ -26,7 +26,7 @@ function CarteCompte({ account }) {
     const utilise = Number(account.soldeUtilise || 0);
     const limite = Number(account.limite || 1);
     const pct = Math.min(100, (utilise / limite) * 100);
-    const couleurBarre = pct > 80 ? '#ef4444' : pct > 50 ? '#f59e0b' : '#10b981';
+    const couleurBarre = pct > 80 ? '#ef4444' : pct > 50 ? '#C2762E' : '#10b981';
 
     return (
       <div className="carte" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -55,7 +55,7 @@ function CarteCompte({ account }) {
         <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}><Icone className="w-4 h-4" /> {libelle}</h3>
         <span className="sous-titre" style={{ margin: 0 }}>{masque}</span>
       </div>
-      <p style={{ fontSize: '1.6rem', fontWeight: 700, margin: 0, color: 'var(--orange-fonce)' }}>
+      <p className="text-cuivre-600 dark:text-cuivre-300" style={{ fontSize: '1.6rem', fontWeight: 700, margin: 0 }}>
         {Number(account.solde).toFixed(2)} {account.devise}
       </p>
       <Link to={`/comptes/${account._id}`} className="btn btn-secondaire" style={{ alignSelf: 'flex-start' }}>

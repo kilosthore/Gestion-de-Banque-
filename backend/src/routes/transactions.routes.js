@@ -43,7 +43,7 @@ router.get('/', async (req, res) => {
 });
 
 /* US-11 — Dépôt ou retrait simulé (atomique, LOCK.UPDATE) */
-router.post('/depot-retrait', async (req, res) => {
+router.post('/depot-retrait', auditLog('transaction.depot_retrait'), async (req, res) => {
   try {
     const { compteId, type, montant, description } = req.body;
     const m = Number(montant);
@@ -72,7 +72,7 @@ router.post('/depot-retrait', async (req, res) => {
 });
 
 /* US-12 — Dépôt de chèque par photo (simulé : statut en attente de validation) */
-router.post('/depot-cheque', async (req, res) => {
+router.post('/depot-cheque', auditLog('transaction.depot_cheque'), async (req, res) => {
   try {
     const { compteId, montant, imageCheque, description } = req.body;
     const m = Number(montant);
@@ -197,7 +197,7 @@ router.post('/paiement-facture', auditLog('paiement.facture'), async (req, res) 
 });
 
 /* US-17 — Planifier une transaction récurrente */
-router.post('/recurrente', async (req, res) => {
+router.post('/recurrente', auditLog('transaction.recurrente_creation'), async (req, res) => {
   try {
     const { compteSourceId, type, montant, description, recurrence, premiereDate, beneficiaireId, fournisseurId } = req.body;
     const m = Number(montant);
@@ -230,7 +230,7 @@ router.get('/planifiees', async (req, res) => {
   res.json({ transactions });
 });
 
-router.delete('/planifiees/:id', async (req, res) => {
+router.delete('/planifiees/:id', auditLog('transaction.recurrente_annulation'), async (req, res) => {
   const tx = await Transaction.findOne({
     where: { _id: req.params.id, client: req.user._id, statut: 'planifiee' },
   });
@@ -264,8 +264,8 @@ router.get('/comparaison-depenses', async (req, res) => {
 
   const lignes = await Transaction.findAll({
     attributes: [
-      [fn('YEAR', col('date')), 'annee'],
-      [fn('MONTH', col('date')), 'mois'],
+      [literal('EXTRACT(YEAR FROM "date")::int'), 'annee'],
+      [literal('EXTRACT(MONTH FROM "date")::int'), 'mois'],
       [fn('SUM', col('montant')), 'total'],
       [fn('COUNT', col('_id')), 'nombre'],
     ],
@@ -273,7 +273,7 @@ router.get('/comparaison-depenses', async (req, res) => {
       client: req.user._id, sens: 'debit', statut: 'executee',
       date: { [Op.gte]: debut },
     },
-    group: [literal('YEAR(`date`)'), literal('MONTH(`date`)')],
+    group: [literal('EXTRACT(YEAR FROM "date")'), literal('EXTRACT(MONTH FROM "date")')],
     order: [literal('annee ASC'), literal('mois ASC')],
     raw: true,
   });

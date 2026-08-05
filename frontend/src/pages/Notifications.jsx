@@ -33,7 +33,7 @@ export default function Notifications() {
             <div className="flex justify-between items-start gap-3">
               <div>
                 <p className="font-semibold">{n.message}</p>
-                <small className="text-amber-700 dark:text-primaire-400">{new Date(n.date).toLocaleString('fr-CA')}</small>
+                <small className="text-slate-600 dark:text-primaire-400">{new Date(n.date).toLocaleString('fr-CA')}</small>
               </div>
               {!n.lue && <button className="btn btn-secondaire !px-3 !py-1.5 shrink-0" onClick={() => lire(n._id)}>Lu ✔</button>}
             </div>

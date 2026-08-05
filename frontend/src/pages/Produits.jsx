@@ -24,7 +24,7 @@ export default function Produits() {
               <span className="badge">{p.type}</span>
             </div>
             <p className="sous-titre !mb-2 mt-1">{p.description}</p>
-            <p className="text-2xl font-extrabold text-amber-700 dark:text-primaire-400">{p.valeur} %</p>
+            <p className="text-2xl font-extrabold text-slate-600 dark:text-primaire-400">{p.valeur} %</p>
           </div>
         ))}
       </div>

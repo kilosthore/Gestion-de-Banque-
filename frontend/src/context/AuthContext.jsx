@@ -8,8 +8,8 @@ export function AuthProvider({ children }) {
     const u = sessionStorage.getItem('user');
     return u ? JSON.parse(u) : null;
   });
-  // Thème dynamique clair / sombre (toujours jaune-orange)
-  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'clair');
+  // Thème dynamique clair / sombre — l'identité « Verre Obsidienne » est le défaut
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'sombre');
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;

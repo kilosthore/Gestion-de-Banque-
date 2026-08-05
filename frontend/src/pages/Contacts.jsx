@@ -83,7 +83,7 @@ export default function Contacts() {
             {beneficiaires.length === 0 && <p className="sous-titre">Aucun bénéficiaire.</p>}
             {beneficiaires.map((b) => (
               <div key={b._id} className="flex justify-between items-center py-2.5 border-t border-primaire-200 dark:border-sombre-bordure">
-                <div><b>{b.nom}</b><br /><small className="text-amber-700 dark:text-primaire-400">{b.coordonnees}</small></div>
+                <div><b>{b.nom}</b><br /><small className="text-slate-600 dark:text-primaire-400">{b.coordonnees}</small></div>
                 <div className="flex gap-1.5">
                   <IconeAction icon={Pencil} label="Modifier" variante="neutre" testId={`modifier-beneficiaire-${b._id}`}
                     onClick={() => { setEdition(b._id); setFb({ nom: b.nom, coordonnees: b.coordonnees }); }} />

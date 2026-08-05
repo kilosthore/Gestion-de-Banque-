@@ -25,13 +25,18 @@ async function connecterClient() {
 const auth = (token) => ({ Authorization: `Bearer ${token}` });
 
 describe('US-04 — Comptes', () => {
-  test('le client a un compte chèque de 500 $ à l’inscription', async () => {
+  test('le client a un compte chèque de 500 $ et un compte épargne de 0 $ à l’inscription', async () => {
     const token = await connecterClient();
     const res = await request(app).get('/api/comptes').set(auth(token));
     expect(res.status).toBe(200);
-    expect(res.body.comptes).toHaveLength(1);
-    expect(res.body.comptes[0].type).toBe('cheque');
-    expect(res.body.comptes[0].solde).toBe(500);
+    expect(res.body.comptes).toHaveLength(2);
+
+    const cheque = res.body.comptes.find((c) => c.type === 'cheque');
+    const epargne = res.body.comptes.find((c) => c.type === 'epargne');
+    expect(cheque).toBeTruthy();
+    expect(cheque.solde).toBe(500);
+    expect(epargne).toBeTruthy();
+    expect(epargne.solde).toBe(0);
   });
 
   test('ouverture d’un compte épargne', async () => {

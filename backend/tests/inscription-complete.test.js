@@ -158,6 +158,11 @@ test('Workflow admin : valider dossier → user actif + compte chèque 500$', as
   expect(r.body.user.statutDossier).toBe('actif');
   expect(r.body.compte.type).toBe('cheque');
   expect(r.body.compte.solde).toBe(500);
+  // Un compte épargne (0 $) est aussi ouvert automatiquement
+  expect(r.body.compteEpargne.type).toBe('epargne');
+  expect(r.body.compteEpargne.solde).toBe(0);
+  const comptes = await Compte.findAll({ where: { proprietaire: user._id } });
+  expect(comptes).toHaveLength(2);
 
   // Maintenant la connexion fonctionne
   const login = await request(app).post('/api/auth/login').send({

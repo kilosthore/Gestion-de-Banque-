@@ -4,10 +4,11 @@ const crypto = require('crypto');
 const rateLimit = require('express-rate-limit');
 const Ajv = require('ajv');
 const addFormats = require('ajv-formats');
-const { sequelize, User, Otp, Compte, RevokedToken } = require('../models');
+const { sequelize, User, Otp, Compte, RevokedToken, Notification } = require('../models');
 const { envoyerOtp, smtpConfigure } = require('../utils/mailer');
 const { protect } = require('../middleware/auth');
 const { auditLog } = require('../middleware/audit');
+const { ouvrirComptesInitiaux } = require('../utils/comptes');
 const schemaInscription = require('../schemas/inscription-bancaire.json');
 
 // Compile la validation JSON Schema une seule fois au démarrage
@@ -40,10 +41,17 @@ const signerComplet = (id, role) =>
 
 const publicUser = (u) => ({
   id: u._id, nom: u.nom, prenom: u.prenom, email: u.email, role: u.role, dateCreation: u.dateCreation,
+  doitChangerMotDePasse: Boolean(u.doitChangerMotDePasse), // force le changement du mdp temporaire
 });
 
+/** Le code OTP ne peut être exposé (réponse HTTP) qu'en dehors de la production.
+ *  En prod, même DEMO_OTP=true ou SMTP absent ne doivent jamais le divulguer. */
+const otpDemoActif = () =>
+  process.env.NODE_ENV !== 'production' &&
+  (process.env.DEMO_OTP === 'true' || !smtpConfigure());
+
 /* US-01 — Créer mon profil (inscription) */
-router.post('/register', limiteurAuth, async (req, res) => {
+router.post('/register', limiteurAuth, auditLog('inscription.simple'), async (req, res, next) => {
   try {
     const { nom, prenom, email, motDePasse } = req.body;
     if (!nom || !email || !motDePasse) {
@@ -61,17 +69,18 @@ router.post('/register', limiteurAuth, async (req, res) => {
     if (await User.findOne({ where: { email } })) {
       return res.status(409).json({ message: 'Un compte existe déjà avec cet email' });
     }
-    const user = await User.create({
-      nom, prenom, email: email.toLowerCase(),
-      motDePasseHache: await User.hacher(motDePasse),
-    });
-    // Compte chèque ouvert automatiquement avec 500 $ de démonstration
-    await Compte.create({
-      proprietaire: user._id, numero: Compte.genererNumero(), type: 'cheque', solde: 500,
+    // Atomique : User + comptes initiaux (chèque 500 $ + épargne 0 $) naissent ensemble
+    const user = await sequelize.transaction(async (t) => {
+      const nouveau = await User.create({
+        nom, prenom, email: email.toLowerCase(),
+        motDePasseHache: await User.hacher(motDePasse),
+      }, { transaction: t });
+      await ouvrirComptesInitiaux(nouveau._id, { transaction: t });
+      return nouveau;
     });
     res.status(201).json({ message: 'Profil créé. Vous pouvez vous connecter.', user: publicUser(user) });
   } catch (e) {
-    res.status(500).json({ message: e.message });
+    next(e);
   }
 });
 
@@ -79,7 +88,7 @@ router.post('/register', limiteurAuth, async (req, res) => {
    Validation stricte via JSON Schema (ajv). Le compte est créé en statut
    'en_verification' et attend l'approbation d'un admin avant d'être 'actif'.
    Le numéro de dossier (DOS-AAAA-NNNNNN) est généré côté serveur. */
-router.post('/register-complet', limiteurAuth, auditLog('inscription.complete'), async (req, res) => {
+router.post('/register-complet', limiteurAuth, auditLog('inscription.complete'), async (req, res, next) => {
   try {
     if (!validerInscription(req.body)) {
       // Format ajv → message lisible : on cite les 3 premières erreurs
@@ -126,17 +135,19 @@ router.post('/register-complet', limiteurAuth, auditLog('inscription.complete'),
       numeroDossier: user.numeroDossier,
     });
   } catch (e) {
-    res.status(500).json({ message: e.message });
+    next(e);
   }
 });
 
-/* US-23 — Étape 1 : email + mot de passe → envoi du code OTP */
-router.post('/login', limiteurAuth, async (req, res) => {
+/* US-23 — Étape 1 : email + mot de passe → envoi du code OTP.
+   Audité (succès ET échecs) : indispensable pour la traçabilité type judiciaire. */
+router.post('/login', limiteurAuth, auditLog('auth.login'), async (req, res, next) => {
   try {
     const { email, motDePasse } = req.body;
     const user = await User.scope('avecMdp').findOne({ where: { email: (email || '').toLowerCase() } });
     // Réponse identique que l'email existe ou non (anti-énumération)
     if (!user) return res.status(401).json({ message: 'Identifiants incorrects' });
+    req.auditUserId = user._id; // l'audit connaît l'utilisateur même sans req.user
 
     if (user.estVerrouille()) {
       const minutes = Math.ceil((new Date(user.verrouJusqua) - Date.now()) / 60000);
@@ -151,12 +162,25 @@ router.post('/login', limiteurAuth, async (req, res) => {
     }
     if (!(await user.comparerMotDePasse(motDePasse || ''))) {
       user.echecsConnexion += 1;
-      if (user.echecsConnexion >= MAX_ECHECS) {
+      const verrouille = user.echecsConnexion >= MAX_ECHECS;
+      if (verrouille) {
         user.verrouJusqua = new Date(Date.now() + VERROU_MINUTES * 60000);
         user.echecsConnexion = 0;
+        // Alerte immédiate aux administrateurs : ils peuvent délivrer un
+        // mot de passe temporaire à 6 chiffres via la réinitialisation (US-22).
+        const admins = await User.findAll({ where: { role: 'admin' } });
+        await Promise.all(admins.map((a) => Notification.envoyer(
+          a._id,
+          `Alerte sécurité (verrouillage) : le compte ${user.email} est verrouillé après ${MAX_ECHECS} mots de passe erronés. ` +
+          'Si le client a oublié son mot de passe, réinitialisez son profil pour lui remettre un code temporaire à 6 chiffres.'
+        )));
       }
       await user.save();
-      return res.status(401).json({ message: 'Identifiants incorrects' });
+      return res.status(401).json({
+        message: verrouille
+          ? `Compte verrouillé après ${MAX_ECHECS} tentatives. Mot de passe oublié ? Contactez votre banque : un administrateur vous remettra un code temporaire.`
+          : 'Identifiants incorrects',
+      });
     }
     user.echecsConnexion = 0;
     user.verrouJusqua = null;
@@ -165,22 +189,21 @@ router.post('/login', limiteurAuth, async (req, res) => {
     // Génération + envoi du code OTP à 6 chiffres
     const code = await Otp.creerPour(user._id);
     const envoi = await envoyerOtp(user.email, code);
-    const demoActif = process.env.DEMO_OTP === 'true' || !smtpConfigure();
 
     res.json({
       message: envoi.envoye
         ? 'Code envoyé par email'
         : 'Mode démo : code affiché dans la console serveur',
       tempToken: signerTemp(user._id),
-      ...(demoActif ? { codeDemo: code } : {}), // visible uniquement en mode démo
+      ...(otpDemoActif() ? { codeDemo: code } : {}), // jamais exposé en production
     });
   } catch (e) {
-    res.status(500).json({ message: e.message });
+    next(e);
   }
 });
 
 /* US-23 — Étape 2 : vérification du code OTP → JWT complet */
-router.post('/verify-otp', limiteurAuth, auditLog('auth.verify_otp'), async (req, res) => {
+router.post('/verify-otp', limiteurAuth, auditLog('auth.verify_otp'), async (req, res, next) => {
   try {
     const { tempToken, code } = req.body;
     if (!tempToken || !/^\d{6}$/.test(code || '')) {
@@ -193,6 +216,7 @@ router.post('/verify-otp', limiteurAuth, auditLog('auth.verify_otp'), async (req
       return res.status(401).json({ message: 'Session expirée, reconnectez-vous' });
     }
     if (payload.etape !== 'otp') return res.status(401).json({ message: 'Jeton invalide' });
+    req.auditUserId = payload.id;
 
     const otp = await Otp.findOne({ where: { user: payload.id } });
     if (!otp || new Date(otp.expireA) < new Date()) {
@@ -210,14 +234,15 @@ router.post('/verify-otp', limiteurAuth, auditLog('auth.verify_otp'), async (req
     await otp.destroy(); // usage unique
 
     const user = await User.findByPk(payload.id);
+    if (!user) return res.status(401).json({ message: 'Utilisateur introuvable' });
     res.json({ message: 'Connexion réussie', token: signerComplet(user._id, user.role), user: publicUser(user) });
   } catch (e) {
-    res.status(500).json({ message: e.message });
+    next(e);
   }
 });
 
 /* Renvoyer un nouveau code OTP */
-router.post('/resend-otp', limiteurAuth, async (req, res) => {
+router.post('/resend-otp', limiteurAuth, auditLog('auth.resend_otp'), async (req, res, next) => {
   try {
     const { tempToken } = req.body;
     let payload;
@@ -226,21 +251,46 @@ router.post('/resend-otp', limiteurAuth, async (req, res) => {
     } catch {
       return res.status(401).json({ message: 'Session expirée, reconnectez-vous' });
     }
+    // Seul un jeton temporaire (étape OTP) peut demander un renvoi de code
+    if (payload.etape !== 'otp') return res.status(401).json({ message: 'Jeton invalide' });
+    req.auditUserId = payload.id;
     const user = await User.findByPk(payload.id);
+    if (!user) return res.status(401).json({ message: 'Utilisateur introuvable' });
     const code = await Otp.creerPour(user._id);
     await envoyerOtp(user.email, code);
-    const demoActif = process.env.DEMO_OTP === 'true' || !smtpConfigure();
-    res.json({ message: 'Nouveau code envoyé', ...(demoActif ? { codeDemo: code } : {}) });
+    res.json({ message: 'Nouveau code envoyé', ...(otpDemoActif() ? { codeDemo: code } : {}) });
   } catch (e) {
-    res.status(500).json({ message: e.message });
+    next(e);
   }
 });
 
 /* US-03 — Consulter mes informations personnelles */
 router.get('/me', protect, (req, res) => res.json({ user: publicUser(req.user) }));
 
+/* Changement de mot de passe — lève l'obligation posée par un code temporaire admin.
+   Audité : action sensible au même titre que la connexion. */
+router.post('/changer-mot-de-passe', protect, auditLog('auth.changement_mdp'), async (req, res, next) => {
+  try {
+    const { ancienMotDePasse, nouveauMotDePasse } = req.body;
+    const user = await User.scope('avecMdp').findByPk(req.user._id);
+    if (!(await user.comparerMotDePasse(ancienMotDePasse || ''))) {
+      return res.status(401).json({ message: 'Mot de passe actuel incorrect' });
+    }
+    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(nouveauMotDePasse || '')) {
+      return res.status(400).json({ message: 'Nouveau mot de passe trop faible : 8 caractères minimum avec majuscule, minuscule et chiffre' });
+    }
+    await user.update({
+      motDePasseHache: await User.hacher(nouveauMotDePasse),
+      doitChangerMotDePasse: false,
+    });
+    res.json({ message: 'Mot de passe modifié avec succès' });
+  } catch (e) {
+    next(e);
+  }
+});
+
 /* E1 — Déconnexion : révoque le JWT courant (blacklist jusqu'à son expiration) */
-router.post('/logout', protect, auditLog('logout'), async (req, res) => {
+router.post('/logout', protect, auditLog('logout'), async (req, res, next) => {
   try {
     const { jti, exp } = req.tokenPayload || {};
     if (jti && exp) {
@@ -252,25 +302,25 @@ router.post('/logout', protect, auditLog('logout'), async (req, res) => {
     }
     res.json({ message: 'Déconnexion effectuée' });
   } catch (e) {
-    res.status(500).json({ message: e.message });
+    next(e);
   }
 });
 
 /* US-01 — Modifier mon profil */
-router.put('/me', protect, async (req, res) => {
+router.put('/me', protect, auditLog('profil.modification'), async (req, res, next) => {
   try {
     const { nom, prenom } = req.body;
-    if (nom) req.user.nom = nom;
-    if (prenom !== undefined) req.user.prenom = prenom;
+    if (nom) req.user.nom = String(nom).slice(0, 100);
+    if (prenom !== undefined) req.user.prenom = prenom === null ? null : String(prenom).slice(0, 100);
     await req.user.save();
     res.json({ message: 'Profil mis à jour', user: publicUser(req.user) });
   } catch (e) {
-    res.status(500).json({ message: e.message });
+    next(e);
   }
 });
 
 /* E7 — RGPD article 20 (portabilité) : exporter toutes mes données en JSON */
-router.get('/me/export-donnees', protect, auditLog('rgpd.export'), async (req, res) => {
+router.get('/me/export-donnees', protect, auditLog('rgpd.export'), async (req, res, next) => {
   try {
     const {
       Compte, Transaction, Beneficiaire, Fournisseur, ObjectifEpargne,
@@ -298,14 +348,14 @@ router.get('/me/export-donnees', protect, auditLog('rgpd.export'), async (req, r
       exporteLe: new Date().toISOString(),
     });
   } catch (e) {
-    res.status(500).json({ message: e.message });
+    next(e);
   }
 });
 
 /* E7 — RGPD article 17 (droit à l'oubli) : suppression + anonymisation des transactions
    Les transactions ne sont pas supprimées (obligation comptable bancaire de conservation)
    mais leur lien au client est cassé (client = null) pour anonymisation. */
-router.delete('/me', protect, auditLog('rgpd.suppression'), async (req, res) => {
+router.delete('/me', protect, auditLog('rgpd.suppression'), async (req, res, next) => {
   try {
     const {
       Compte, Transaction, Beneficiaire, Fournisseur, ObjectifEpargne,
@@ -328,7 +378,7 @@ router.delete('/me', protect, auditLog('rgpd.suppression'), async (req, res) => 
 
     res.json({ message: 'Compte supprimé. Vos transactions sont anonymisées (obligation comptable).' });
   } catch (e) {
-    res.status(500).json({ message: e.message });
+    next(e);
   }
 });
 

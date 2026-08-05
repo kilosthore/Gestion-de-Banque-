@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="TorcolBank">
+  <circle cx="256" cy="256" r="256" fill="#1E3055"/>
+  <g transform="translate(-22,6)" fill="none" stroke="#F5F1E8" stroke-width="22" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M310,98 L398,74 L324,132 Z" fill="#C2762E" stroke="none"/>
+    <path d="M310,98 C274,74 230,88 224,126 C219,158 242,184 276,186"/>
+    <circle cx="272" cy="124" r="9" fill="#C2762E" stroke="none"/>
+    <path d="M276,186 C226,192 192,230 194,282 C196,330 236,366 288,362"/>
+    <path d="M324,132 C352,168 360,222 336,266 C318,298 284,314 252,308"/>
+    <path d="M288,362 C252,398 206,424 158,436"/>
+    <path d="M252,308 C240,346 208,380 168,402"/>
+    <path d="M158,436 C160,424 164,412 168,402"/>
+  </g>
+</svg>

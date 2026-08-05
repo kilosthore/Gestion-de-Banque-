@@ -37,8 +37,8 @@ router.get('/summary', async (req, res) => {
       ParametresGlobaux.obtenir(),
       Transaction.findAll({
         attributes: [
-          [fn('YEAR', col('date')), 'annee'],
-          [fn('MONTH', col('date')), 'mois'],
+          [literal('EXTRACT(YEAR FROM "date")::int'), 'annee'],
+          [literal('EXTRACT(MONTH FROM "date")::int'), 'mois'],
           [fn('SUM', literal("CASE WHEN sens='credit' THEN montant ELSE 0 END")), 'credits'],
           [fn('SUM', literal("CASE WHEN sens='debit' THEN montant ELSE 0 END")), 'debits'],
         ],
@@ -47,7 +47,7 @@ router.get('/summary', async (req, res) => {
           statut: 'executee',
           date: { [Op.gte]: debut6Mois },
         },
-        group: [literal('YEAR(`date`)'), literal('MONTH(`date`)')],
+        group: [literal('EXTRACT(YEAR FROM "date")'), literal('EXTRACT(MONTH FROM "date")')],
         order: [literal('annee ASC'), literal('mois ASC')],
         raw: true,
       }),

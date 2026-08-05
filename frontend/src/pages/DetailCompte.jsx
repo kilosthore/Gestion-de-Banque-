@@ -35,7 +35,7 @@ export default function DetailCompte() {
 
   return (
     <div>
-      <Link to="/comptes" className="text-amber-700 dark:text-primaire-400 font-bold no-underline">← Mes comptes</Link>
+      <Link to="/comptes" className="text-slate-600 dark:text-primaire-400 font-bold no-underline">← Mes comptes</Link>
       <div className="carte carte-compte my-4">
         <p className="capitalize font-bold opacity-90">{estCarte ? 'Carte de crédit' : `Compte ${compte.type}`}</p>
         <p className="text-sm opacity-80">N° {compte.numero} · ouvert le {new Date(compte.dateOuverture).toLocaleDateString('fr-CA')}</p>

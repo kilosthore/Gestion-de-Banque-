@@ -6,7 +6,7 @@ import { LucideIcon } from "lucide-react"
 const variantes: Record<string, string> = {
   succes: "bg-green-500 text-white hover:bg-green-600",
   danger: "bg-red-500 text-white hover:bg-red-600",
-  neutre: "bg-primaire-100 text-amber-700 hover:bg-primaire-200 dark:bg-sombre-surface2 dark:text-primaire-400 dark:hover:bg-sombre-bordure",
+  neutre: "bg-primaire-100 text-slate-600 hover:bg-primaire-200 dark:bg-sombre-surface2 dark:text-primaire-400 dark:hover:bg-sombre-bordure",
 }
 
 interface IconeActionProps {
@@ -37,7 +37,7 @@ export function IconeAction({ icon: Icon, label, onClick, variante = "neutre", c
       <Icon className="w-5 h-5" />
       <span className={cn(
         "absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 rounded text-xs z-10",
-        "bg-amber-950 text-white dark:bg-primaire-100 dark:text-amber-950",
+        "bg-primaire-700 text-white dark:bg-primaire-100 dark:text-primaire-700",
         "opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none"
       )}>
         {label}
