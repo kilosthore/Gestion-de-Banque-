@@ -100,7 +100,10 @@ PORT=5000
 CLIENT_URL=http://localhost:5173
 # NODE_ENV=production           # en prod : trust proxy, pas de mode démo OTP, erreurs masquées
 
-# Mot de passe admin créé par le seed (sinon généré et affiché une seule fois)
+# Compte admin créé par le seed. ADMIN_EMAIL doit être une vraie boîte : l'OTP
+# de connexion 2FA y est envoyé. Mot de passe : ADMIN_PASSWORD (sinon généré et
+# affiché une seule fois).
+ADMIN_EMAIL=
 ADMIN_PASSWORD=
 
 # Email OTP (obligatoire en production — Gmail : mot de passe d'application)
@@ -144,7 +147,7 @@ npm start          # → http://localhost:5000
 | Rôle | Accès |
 |---|---|
 | **Client** | Créer un profil via « Créer un compte » → un compte chèque avec **500 $** de démonstration est ouvert automatiquement |
-| **Administrateur** | `admin@banque.com` / mot de passe défini au seed (voir ci-dessus) |
+| **Administrateur** | email défini par `ADMIN_EMAIL` / mot de passe défini au seed (voir ci-dessus) |
 
 **OTP en mode démo** : sans configuration SMTP, le code à 6 chiffres s'affiche
 directement dans l'interface de connexion (et dans la console serveur).

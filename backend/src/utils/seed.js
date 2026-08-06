@@ -10,21 +10,24 @@ async function seed() {
   await connectDB();
   const { User, ParametresGlobaux, ProduitFinancier } = require('../models');
 
-  // Administrateur par défaut — mot de passe fourni par ADMIN_PASSWORD (.env)
-  // ou généré aléatoirement et affiché UNE SEULE FOIS ici. Jamais codé en dur :
-  // un mot de passe présent dans le dépôt git est public.
-  if (!(await User.findOne({ where: { email: 'admin@banque.com' } }))) {
+  // Administrateur par défaut — email via ADMIN_EMAIL, mot de passe via
+  // ADMIN_PASSWORD (.env), ou généré aléatoirement et affiché UNE SEULE FOIS ici.
+  // Jamais codé en dur : un mot de passe présent dans le dépôt git est public.
+  // L'email DOIT être une vraie boîte : l'OTP de connexion 2FA y est envoyé.
+  const emailAdmin = (process.env.ADMIN_EMAIL || 'admin@banque.com').toLowerCase();
+  if (!(await User.findOne({ where: { email: emailAdmin } }))) {
     const mdpAdmin = process.env.ADMIN_PASSWORD || `Adm${crypto.randomBytes(9).toString('base64url')}1a`;
     if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(mdpAdmin)) {
       throw new Error('ADMIN_PASSWORD trop faible : 8+ caractères avec majuscule, minuscule et chiffre');
     }
     await User.create({
       nom: 'Administrateur',
-      email: 'admin@banque.com',
+      email: emailAdmin,
       motDePasseHache: await User.hacher(mdpAdmin),
       role: 'admin',
+      statutDossier: 'actif',
     });
-    console.log(`✔ Admin créé : admin@banque.com / ${process.env.ADMIN_PASSWORD ? '(mot de passe ADMIN_PASSWORD du .env)' : mdpAdmin + '  ← notez-le, il ne sera plus affiché'}`);
+    console.log(`✔ Admin créé : ${emailAdmin} / ${process.env.ADMIN_PASSWORD ? '(mot de passe ADMIN_PASSWORD du .env)' : mdpAdmin + '  ← notez-le, il ne sera plus affiché'}`);
   }
 
   // Paramètres globaux
