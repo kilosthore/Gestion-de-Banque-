@@ -19,6 +19,7 @@ import PaiementPaypal from './pages/PaiementPaypal';
 import Calendrier from './pages/Calendrier';
 import Admin from './pages/Admin';
 import HeroBanque from './components/HeroBanque';
+import BanniereHorsLigne from './components/ui/banniere-hors-ligne';
 
 function Prive({ children, adminSeul = false }) {
   const { user } = useAuth();
@@ -35,7 +36,12 @@ function AccueilOuTableau() {
 
 export default function App() {
   return (
-    <Routes>
+    <>
+      {/* Hors du <Routes> : le bandeau réseau doit rester visible sur toutes les
+          pages, y compris publiques (connexion, inscription), sans être remonté
+          dans chaque écran. */}
+      <BanniereHorsLigne />
+      <Routes>
       {/* L'ancienne page PixelHero est retirée : la Lamp (HeroBanque) est l'unique vitrine */}
       <Route path="/bienvenue" element={<Navigate to="/" replace />} />
       <Route path="/connexion" element={<Connexion />} />
@@ -55,7 +61,8 @@ export default function App() {
       <Route path="/paypal" element={<Prive><PaiementPaypal /></Prive>} />
       <Route path="/profil" element={<Prive><Profil /></Prive>} />
       <Route path="/admin" element={<Prive adminSeul><Admin /></Prive>} />
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </>
   );
 }
