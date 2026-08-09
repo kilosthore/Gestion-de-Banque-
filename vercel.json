@@ -8,6 +8,9 @@
     { "src": "/api/(.*)", "dest": "backend/api/index.js" },
     { "src": "/assets/(.*)", "dest": "frontend/assets/$1" },
     { "src": "/favicon.svg", "dest": "frontend/favicon.svg" },
+    { "src": "/icons/(.*)", "dest": "frontend/icons/$1" },
+    { "src": "/manifest.webmanifest", "dest": "frontend/manifest.webmanifest" },
+    { "src": "/sw.js", "dest": "frontend/sw.js", "headers": { "Cache-Control": "no-cache" } },
     { "handle": "filesystem" },
     { "src": "/(.*)", "dest": "frontend/index.html" }
   ],
