@@ -80,6 +80,29 @@ export default function Connexion() {
     }
   };
 
+  /* Mot de passe oublié : l'utilisateur reçoit un code temporaire à 6 chiffres,
+     qu'il utilise comme mot de passe à l'étape 1. `doitChangerMotDePasse` le
+     redirige ensuite vers /profil pour en choisir un vrai (cf. etape2). */
+  const oubli = async (e) => {
+    e.preventDefault();
+    setErreur(''); setChargement(true);
+    try {
+      const d = await api.post('/auth/mot-de-passe-oublie', { email });
+      setInfo(d.message);
+      setCodeDemo(d.codeTemporaireDemo || '');
+      setEtape('oubli-envoye');
+    } catch (err) {
+      setErreur(err.message);
+    } finally {
+      setChargement(false);
+    }
+  };
+
+  // Retour au formulaire de connexion depuis l'écran « mot de passe oublié »
+  const retourConnexion = () => {
+    setEtape(1); setErreur(''); setInfo(''); setCodeDemo(''); setMotDePasse('');
+  };
+
   const renvoyer = async () => {
     setErreur('');
     try {
@@ -100,7 +123,12 @@ export default function Connexion() {
           <span className="texte-or">TorcolBank</span>
         </h1>
         <p className="sous-titre" style={{ textAlign: 'center' }}>
-          {etape === 1 ? 'Connexion sécurisée' : 'Vérification en 2 étapes'}
+          {{
+            1: 'Connexion sécurisée',
+            2: 'Vérification en 2 étapes',
+            oubli: 'Mot de passe oublié',
+            'oubli-envoye': 'Vérifiez votre boîte mail',
+          }[etape]}
         </p>
 
         {erreur && <div className="alerte alerte-erreur">{erreur}</div>}
@@ -114,10 +142,51 @@ export default function Connexion() {
             <button className="btn" style={{ width: '100%', marginTop: 18 }} disabled={chargement}>
               {chargement ? 'Vérification…' : 'Se connecter →'}
             </button>
-            <p style={{ textAlign: 'center', marginTop: 14, fontSize: '0.9rem' }}>
+            <p style={{ textAlign: 'center', marginTop: 12, fontSize: '0.9rem' }}>
+              <button type="button" onClick={() => { setEtape('oubli'); setErreur(''); }}
+                style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer',
+                         color: '#A9BAD4', textDecoration: 'underline', font: 'inherit' }}>
+                Mot de passe oublié ?
+              </button>
+            </p>
+            <p style={{ textAlign: 'center', marginTop: 8, fontSize: '0.9rem' }}>
               Pas encore de profil ? <Link to="/inscription" style={{ color: '#DFA76B', fontWeight: 700 }}>Créer un profil</Link>
             </p>
           </form>
+        ) : etape === 'oubli' ? (
+          <form onSubmit={oubli}>
+            <p style={{ fontSize: '0.9rem', marginBottom: 14, color: '#A9BAD4' }}>
+              Saisissez l’adresse de votre profil. Si un compte y correspond, vous
+              recevrez un <b>code temporaire à 6 chiffres</b> pour vous reconnecter
+              et choisir un nouveau mot de passe.
+            </p>
+            <label>Email</label>
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoFocus />
+            <button className="btn" style={{ width: '100%', marginTop: 18 }} disabled={chargement}>
+              {chargement ? 'Envoi…' : 'Recevoir un code temporaire'}
+            </button>
+            <button type="button" className="btn btn-secondaire" style={{ width: '100%', marginTop: 10 }}
+              onClick={retourConnexion}>
+              ← Retour à la connexion
+            </button>
+          </form>
+        ) : etape === 'oubli-envoye' ? (
+          <div>
+            {info && <div className="alerte alerte-succes">{info}</div>}
+            {codeDemo && (
+              <div className="alerte" style={{ background: 'rgba(255,255,255,0.08)', color: '#D5DDEA' }}>
+                🧪 Mode démo — code temporaire : <b style={{ letterSpacing: 4 }}>{codeDemo}</b>
+              </div>
+            )}
+            <p style={{ fontSize: '0.9rem', color: '#A9BAD4' }}>
+              Utilisez ce code <b>comme mot de passe</b> pour vous connecter. Il vous
+              sera ensuite demandé d’en choisir un nouveau.
+            </p>
+            <button type="button" className="btn" style={{ width: '100%', marginTop: 18 }}
+              onClick={retourConnexion}>
+              Se connecter avec le code →
+            </button>
+          </div>
         ) : (
           <form onSubmit={etape2}>
             {info && <div className="alerte alerte-succes">{info}</div>}

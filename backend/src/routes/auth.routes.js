@@ -5,7 +5,7 @@ const rateLimit = require('express-rate-limit');
 const Ajv = require('ajv');
 const addFormats = require('ajv-formats');
 const { sequelize, User, Otp, Compte, RevokedToken, Notification } = require('../models');
-const { envoyerOtp, smtpConfigure } = require('../utils/mailer');
+const { envoyerOtp, envoyerMdpTemporaire, smtpConfigure } = require('../utils/mailer');
 const { protect } = require('../middleware/auth');
 const { auditLog } = require('../middleware/audit');
 const { ouvrirComptesInitiaux } = require('../utils/comptes');
@@ -259,6 +259,62 @@ router.post('/resend-otp', limiteurAuth, auditLog('auth.resend_otp'), async (req
     const code = await Otp.creerPour(user._id);
     await envoyerOtp(user.email, code);
     res.json({ message: 'Nouveau code envoyé', ...(otpDemoActif() ? { codeDemo: code } : {}) });
+  } catch (e) {
+    next(e);
+  }
+});
+
+/* Mot de passe oublié (libre-service) — envoie un code temporaire à 6 chiffres.
+   Jusqu'ici la seule voie de recours était US-22 : appeler la banque pour qu'un
+   administrateur réinitialise le profil. Cette route ouvre le même mécanisme au
+   client, l'email tenant lieu de preuve d'identité (c'est déjà le canal de l'OTP).
+
+   Trois garde-fous :
+   - Réponse TOUJOURS identique, que l'email existe ou non : sinon la route
+     devient un oracle permettant de découvrir qui est client de la banque.
+     Même posture que /login.
+   - limiteurAuth (10 requêtes / 15 min) : sans lui, on peut noyer une boîte mail
+     de codes et invalider en boucle le mot de passe d'un tiers.
+   - Le verrou de compte est levé : c'est précisément la situation où quelqu'un
+     bloqué après 5 échecs a besoin de s'en sortir seul. */
+router.post('/mot-de-passe-oublie', limiteurAuth, auditLog('auth.mdp_oublie'), async (req, res, next) => {
+  // Message unique : ne révèle jamais si l'adresse correspond à un compte.
+  const reponseNeutre = {
+    message: 'Si un compte existe pour cette adresse, un code temporaire à 6 chiffres vient d’y être envoyé.',
+  };
+  try {
+    const email = (req.body?.email || '').toLowerCase().trim();
+    if (!email) return res.status(400).json({ message: 'Email requis' });
+
+    const user = await User.findOne({ where: { email } });
+    // Dossier non actif : inutile d'envoyer un code, la connexion serait refusée
+    // de toute façon. On renvoie la même réponse pour ne rien divulguer.
+    if (!user || user.statutDossier !== 'actif') return res.json(reponseNeutre);
+    req.auditUserId = user._id; // l'audit trace la cible même sans session
+
+    const codeTemporaire = String(crypto.randomInt(100000, 1000000));
+    await user.update({
+      motDePasseHache: await User.hacher(codeTemporaire),
+      echecsConnexion: 0,
+      verrouJusqua: null,
+      doitChangerMotDePasse: true, // le code temporaire ne peut pas devenir permanent
+    });
+
+    await envoyerMdpTemporaire(user.email, codeTemporaire);
+    await Notification.envoyer(
+      user._id,
+      'Votre mot de passe a été réinitialisé à votre demande. Connectez-vous avec le code temporaire à 6 chiffres reçu par email, puis choisissez un nouveau mot de passe.'
+    );
+
+    res.json({
+      ...reponseNeutre,
+      // Hors production uniquement (cf. otpDemoActif). ATTENTION : contrairement
+      // au codeDemo de /login, aucun mot de passe n'est exigé avant — en mode
+      // démo, n'importe qui peut donc reprendre n'importe quel compte. Acceptable
+      // pour une présentation, jamais en production, où NODE_ENV=production
+      // court-circuite cette exposition.
+      ...(otpDemoActif() ? { codeTemporaireDemo: codeTemporaire } : {}),
+    });
   } catch (e) {
     next(e);
   }
